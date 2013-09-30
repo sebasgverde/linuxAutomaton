@@ -1,3 +1,13 @@
+paths de archivos
+
+maquina virtual
+/Dropbox/EAFIT$ cd /home/estudiante/Dropbox/EAFIT/Sistemas\ operativos/practica/practicaOperativosSebastianGarciaValencia/src/programas/
+
+fedora
+cd /home/sebastian/Dropbox/EAFIT/Sistemas\ operativos/practica/practicaOperativosSebastianGarciaValencia/src/programas/
+
+
+
 Tutoriales
 
 http://www.csc.villanova.edu/~mdamian/threads/posixsem.html
@@ -11,3 +21,6 @@ http://wpsoftware.net/andrew/pages/libyaml.html
 
 como compilar glib
 https://developer.gnome.org/glib/2.30/glib-compiling.html
+
+manejo de files con stdio
+http://icecube.wisc.edu/~dglo/c_class/stdio.html

@@ -1,1 +1,1 @@
-asdasd
+{ recog: "mensaje reconocido", rest: "mensaje sin reconocer" }

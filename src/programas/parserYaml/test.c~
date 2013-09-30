@@ -11,10 +11,11 @@ int main(void)
 char a [80];
 
 fprintf(stdout,"ingrese entrada\n","%s");
-fscanf(stdin,"%s",a);
+scanf("%[^\n]s",a);
 FILE * archivoLeido;
 archivoLeido = fopen("miArchivo.txt", "w+");//crear archivo para guardar entrada
 fprintf(archivoLeido, "%s", a);
+fclose(archivoLeido);
 
   FILE *fh = fopen("miArchivo.txt", "r");//fopen("idea.yaml", "r");
   yaml_parser_t parser;

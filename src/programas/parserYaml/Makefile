@@ -13,6 +13,6 @@ test.o: test.c
 	$(CC) $(INVOICECFLAGS) -c $< 
 
 clean:
-	rm -f test.o test
+	rm  -f test.o test
 
 

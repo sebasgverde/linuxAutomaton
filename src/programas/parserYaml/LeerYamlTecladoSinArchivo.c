@@ -29,7 +29,10 @@ fclose(archivoLeido);//el problema era que no lo cerraba por eso no coincidia al
 
   /* Set input file */
   //yaml_parser_set_input_file(&parser, fh);
-  yaml_parser_set_input_string(&parser, (unsigned char *)a, 24);
+  yaml_parser_set_input_string(&parser, (unsigned char *)a, 25);
+//debe conocer el tamaño exacto si se pasa genera error si es 
+//lo corta
+
 
   /* BEGIN new code */
   do {

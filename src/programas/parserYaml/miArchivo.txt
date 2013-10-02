@@ -1,1 +1,1 @@
-{ recog: "mensaje reconocido", rest: "mensaje sin reconocer" }
+{asfasf: asdfas, asf: aq}

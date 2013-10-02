@@ -1,66 +1,97 @@
-/*
-ejemplo conarchivos
-http://www.cplusplus.com/reference/cstdio/fscanf/
-*/
-
-#include <stdio.h>
 #include <yaml.h>
+#include <stdio.h>
+#include <glib.h>
 
-int main(void)
+struct Estado
 {
-char a [80];
 
-fprintf(stdout,"ingrese entrada\n","%s");
-scanf("%[^\n]s",a);//para que que reconosca espacios
-FILE * archivoLeido;
-archivoLeido = fopen("miArchivo.txt", "w+");//crear archivo para guardar entrada
-fprintf(archivoLeido, "%s", a);
-fclose(archivoLeido);//el problema era que no lo cerraba por eso no coincidia al reabrilo abajo
 
-  FILE *fh = fopen("miArchivo.txt", "r");//fopen("idea.yaml", "r");
-  yaml_parser_t parser;
-  yaml_token_t  token;   /* new variable */
+};
+typedef struct Estado Estado_t
 
-  /* Initialize parser */
-  if(!yaml_parser_initialize(&parser))
-    fputs("Failed to initialize parser!\n", stderr);
-  if(fh == NULL)
-    fputs("Failed to open file!\n", stderr);
+struct Automata
+{
+   char nombre []; 
+   Estado_t estados[];
 
-  /* Set input file */
-  yaml_parser_set_input_file(&parser, fh);
+};
 
-  /* BEGIN new code */
-  do {
-    yaml_parser_scan(&parser, &token);
-    switch(token.type)
- {
-    /* Stream start/end */
-    case YAML_STREAM_START_TOKEN: puts("STREAM START"); break;
-    case YAML_STREAM_END_TOKEN:   puts("STREAM END");   break;
-    /* Token types (read before actual token) */
-    case YAML_KEY_TOKEN:   printf("(Key token)   "); break;
-    case YAML_VALUE_TOKEN: printf("(Value token) "); break;
-    /* Block delimeters */
-    case YAML_BLOCK_SEQUENCE_START_TOKEN: puts("<b>Start Block (Sequence)</b>"); break;
-    case YAML_BLOCK_ENTRY_TOKEN:          puts("<b>Start Block (Entry)</b>");    break;
-    case YAML_BLOCK_END_TOKEN:            puts("<b>End block</b>");              break;
-    /* Data */
-    case YAML_BLOCK_MAPPING_START_TOKEN:  puts("[Block mapping]");            break;
-    case YAML_SCALAR_TOKEN:  printf("scalar %s \n", token.data.scalar.value); break;
-    /* Others */
-    default:
-      printf("Got token of type %d\n", token.type);
-    }
-    if(token.type != YAML_STREAM_END_TOKEN)
-      yaml_token_delete(&token);
-  } while(token.type != YAML_STREAM_END_TOKEN);
-  yaml_token_delete(&token);
-  /* END new code */
 
-  /* Cleanup */
-  yaml_parser_delete(&parser);
-  fclose(fh);
-  return 0;
+
+
+void process_layer(yaml_parser_t *parser, GNode *data);
+gboolean dump(GNode *n, gpointer data);
+
+
+
+int main (int argc, char **argv) {
+    char *file_path = "automatas.yaml";
+    GNode *cfg = g_node_new(file_path);
+    yaml_parser_t parser;
+
+    FILE *source = fopen(file_path, "rb");
+    yaml_parser_initialize(&parser);
+    yaml_parser_set_input_file(&parser, source);
+    process_layer(&parser, cfg); // Recursive parsing
+    yaml_parser_delete(&parser);
+    fclose(source);
+
+    printf("Results iteration:\n");
+   // g_node_traverse(cfg, G_PRE_ORDER, G_TRAVERSE_ALL, -1, dump, NULL);
+   // g_node_destroy(cfg);
+
+    return(0);
 }
 
+
+
+enum storage_flags { VAR, VAL, SEQ }; // "Store as" switch
+
+void process_layer(yaml_parser_t *parser, GNode *data) {
+    GNode *last_leaf = data;
+    yaml_event_t event;
+    int storage = VAR; // mapping cannot start with VAL definition w/o VAR key
+
+    while (1) {
+      yaml_parser_parse(parser, &event);
+
+      // Parse value either as a new leaf in the mapping
+      //  or as a leaf value (one of them, in case it's a sequence)
+  //printf("%s\n", event.type);
+      if (event.type == YAML_SCALAR_EVENT) {
+printf("%s \n", event.data.scalar.value);
+        if (storage) g_node_append_data(last_leaf, g_strdup((gchar*) event.data.scalar.value));
+        else last_leaf = g_node_append(data, g_node_new(g_strdup((gchar*) event.data.scalar.value)));
+        storage ^= VAL; // Flip VAR/VAL switch for the next event
+      }
+
+      // Sequence - all the following scalars will be appended to the last_leaf
+      else if (event.type == YAML_SEQUENCE_START_EVENT) {storage = SEQ; puts("<b>Start Block (Sequence)</b>");}
+      else if (event.type == YAML_SEQUENCE_END_EVENT) {storage = VAR; puts("<b>end Block (Sequence)</b>");}
+
+      // depth += 1
+      else if (event.type == YAML_MAPPING_START_EVENT) {
+puts("<b>MAPPING_START_EVENT</b>");
+        process_layer(parser, last_leaf);
+        storage ^= VAL; // Flip VAR/VAL, w/o touching SEQ
+      }
+
+      // depth -= 1
+      else if (
+        event.type == YAML_MAPPING_END_EVENT
+        || event.type == YAML_STREAM_END_EVENT
+      ){puts("<b>MAPPING,stream_end_EVENT</b>"); break;}
+
+
+
+      yaml_event_delete(&event);
+    }
+}
+
+
+gboolean dump(GNode *node, gpointer data) {
+    int i = g_node_depth(node);
+    while (--i) printf(" ");
+    printf("%s\n", (char*) node->data);
+    return(FALSE);
+}

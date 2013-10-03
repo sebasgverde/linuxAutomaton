@@ -1,6 +1,11 @@
 #include "other.h"
  
-int getfavoritenumber(void)
+char *b;
+char a [] = "sebastian";
+	
+char* funcion()
 {
-    return 3;
+
+	b = a;
+	return b;
 }

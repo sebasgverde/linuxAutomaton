@@ -136,14 +136,7 @@ enum state showErrorState(enum state curr_state,
   return error;
 }
 
-void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
-{
-  //antes la tenia recibiento el struct y no el *, pero parece que eso clona 
-  //el struct, con esto de paso de parametros y eso es mejor siempre pasar parametros
-  //referencia y no por valor
-  yaml_event_delete(even);
-  yaml_parser_parse(parse, even);
-}
+
 
 
 
@@ -192,6 +185,16 @@ void asignarCosas2()
   siguienteEvento(&parser,&event);//units valor
   pitem->units = atoi((char*)event.data.scalar.value);
 
+}
+
+
+void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
+{
+  //antes la tenia recibiento el struct y no el *, pero parece que eso clona 
+  //el struct, con esto de paso de parametros y eso es mejor siempre pasar parametros
+  //referencia y no por valor
+          yaml_event_delete(even);
+        yaml_parser_parse(parse, even);
 }
 
 

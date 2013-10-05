@@ -1,97 +1,131 @@
-#include <yaml.h>
 #include <stdio.h>
+#include <yaml.h>
+#include <stdlib.h>
 #include <glib.h>
+
+
+struct Transicion
+{
+  char* entrada;
+  char* next;
+};
+typedef struct Transicion Transicion_t;
+
 
 struct Estado
 {
-
+  //char * nomAutomata;
+  char* nomNodo;
+  GSList transiciones;//Transicion_t transiciones [0];
+  //tuberia entrada
+  //tuberia salida [] esto debe ir pero dentro del proceso no aqui
 
 };
-typedef struct Estado Estado_t
+typedef struct Estado Estado_t;
 
 struct Automata
 {
-   char nombre []; 
-   Estado_t estados[];
-
+   char* nombre; 
+   char * alpha [0];
+   char * states[0];
+   GSList* estados;//Estado_t estados[0];
+   Estado_t inicial;
+   GSList* final;//Estado_t final [1];
 };
+typedef struct Automata Automata_t;
+
+// Automata_t automatasPrograma [];
 
 
 
 
-void process_layer(yaml_parser_t *parser, GNode *data);
-gboolean dump(GNode *n, gpointer data);
 
 
 
-int main (int argc, char **argv) {
-    char *file_path = "automatas.yaml";
-    GNode *cfg = g_node_new(file_path);
-    yaml_parser_t parser;
 
-    FILE *source = fopen(file_path, "rb");
-    yaml_parser_initialize(&parser);
-    yaml_parser_set_input_file(&parser, source);
-    process_layer(&parser, cfg); // Recursive parsing
-    yaml_parser_delete(&parser);
-    fclose(source);
 
-    printf("Results iteration:\n");
-   // g_node_traverse(cfg, G_PRE_ORDER, G_TRAVERSE_ALL, -1, dump, NULL);
-   // g_node_destroy(cfg);
 
-    return(0);
+
+
+yaml_event_t  event;
+Automata_t* pAutom;
+  GSList* automatasPrueba;
+int estado = 0;
+
+void imprimir()
+{
+  if(strcmp((char*)event.data.scalar.value, "automata") == 0)
+  {
+    pAutom = (Automata_t*)malloc(sizeof(Automata_t));
+    automatasPrueba = g_slist_append(automatasPrueba, pAutom);
+    estado = 1;
+    return;
+  }
+  if(estado == 1)
+  {
+    pAutom -> nombre = (char *) malloc(sizeof(char) *
+           (event.data.scalar.length + 1));
+      printf("Got scalar (value %s)\n\n\n\n\n", event.data.scalar.value);
+      estado= 0;
+  }
+  else
+  printf("Got scalar (value %s)\n", event.data.scalar.value);
 }
 
+int main(void)
+{
+  FILE *fh = fopen("automatas.yaml", "r");
+  yaml_parser_t parser;
+  //yaml_event_t  event;   /* New variable */
 
 
-enum storage_flags { VAR, VAL, SEQ }; // "Store as" switch
+  /* Initialize parser */
+  if(!yaml_parser_initialize(&parser))
+    fputs("Failed to initialize parser!\n", stderr);
+  if(fh == NULL)
+    fputs("Failed to open file!\n", stderr);
 
-void process_layer(yaml_parser_t *parser, GNode *data) {
-    GNode *last_leaf = data;
-    yaml_event_t event;
-    int storage = VAR; // mapping cannot start with VAL definition w/o VAR key
+  /* Set input file */
+  yaml_parser_set_input_file(&parser, fh);
 
-    while (1) {
-      yaml_parser_parse(parser, &event);
-
-      // Parse value either as a new leaf in the mapping
-      //  or as a leaf value (one of them, in case it's a sequence)
-  //printf("%s\n", event.type);
-      if (event.type == YAML_SCALAR_EVENT) {
-printf("%s \n", event.data.scalar.value);
-        if (storage) g_node_append_data(last_leaf, g_strdup((gchar*) event.data.scalar.value));
-        else last_leaf = g_node_append(data, g_node_new(g_strdup((gchar*) event.data.scalar.value)));
-        storage ^= VAL; // Flip VAR/VAL switch for the next event
-      }
-
-      // Sequence - all the following scalars will be appended to the last_leaf
-      else if (event.type == YAML_SEQUENCE_START_EVENT) {storage = SEQ; puts("<b>Start Block (Sequence)</b>");}
-      else if (event.type == YAML_SEQUENCE_END_EVENT) {storage = VAR; puts("<b>end Block (Sequence)</b>");}
-
-      // depth += 1
-      else if (event.type == YAML_MAPPING_START_EVENT) {
-puts("<b>MAPPING_START_EVENT</b>");
-        process_layer(parser, last_leaf);
-        storage ^= VAL; // Flip VAR/VAL, w/o touching SEQ
-      }
-
-      // depth -= 1
-      else if (
-        event.type == YAML_MAPPING_END_EVENT
-        || event.type == YAML_STREAM_END_EVENT
-      ){puts("<b>MAPPING,stream_end_EVENT</b>"); break;}
-
-
-
-      yaml_event_delete(&event);
+  /* START new code */
+  do {
+    if (!yaml_parser_parse(&parser, &event)) {
+       printf("Parser error %d\n", parser.error);
+       exit(EXIT_FAILURE);
     }
-}
 
+    switch(event.type)
+    { 
+    case YAML_NO_EVENT: puts("No event!"); break;
+    /* Stream start/end */
+    case YAML_STREAM_START_EVENT: puts("STREAM START"); break;
+    case YAML_STREAM_END_EVENT:   puts("STREAM END");   break;
+    /* Block delimeters */
+    case YAML_DOCUMENT_START_EVENT: puts("<b>Start Document</b>"); break;
+    case YAML_DOCUMENT_END_EVENT:   puts("<b>End Document</b>");   break;
+    case YAML_SEQUENCE_START_EVENT: puts("<b>Start Sequence</b>"); break;
+    case YAML_SEQUENCE_END_EVENT:   puts("<b>End Sequence</b>");   break;
+    case YAML_MAPPING_START_EVENT:  puts("<b>Start Mapping</b>");  break;
+    case YAML_MAPPING_END_EVENT:    puts("<b>End Mapping</b>");    break;
+    /* Data */
+    case YAML_ALIAS_EVENT:  printf("Got alias (anchor %s)\n", event.data.alias.anchor); break;
+    case YAML_SCALAR_EVENT: imprimir();break;//printf("Got scalar (value %s)\n", event.data.scalar.value); break;
+    }
+    if(event.type != YAML_STREAM_END_EVENT)
+      yaml_event_delete(&event);
+  } while(event.type != YAML_STREAM_END_EVENT);
+  yaml_event_delete(&event);
+  /* END new code */
 
-gboolean dump(GNode *node, gpointer data) {
-    int i = g_node_depth(node);
-    while (--i) printf(" ");
-    printf("%s\n", (char*) node->data);
-    return(FALSE);
+  /* Cleanup */
+  yaml_parser_delete(&parser);
+  fclose(fh);
+
+  GSList* node;
+  for (node = automatasPrueba; node; node = node->next) {
+    fprintf(stdout, "%s\n",pAutom->nombre);
+  }
+
+  return 0;
 }

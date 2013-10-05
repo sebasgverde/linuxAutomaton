@@ -39,8 +39,8 @@ p->x = 8;
 
 struct Transicion
 {
-  char * entrada [0];
-  char * next [0];
+  char* entrada;
+  char* next;
 };
 typedef struct Transicion Transicion_t;
 
@@ -48,8 +48,8 @@ typedef struct Transicion Transicion_t;
 struct Estado
 {
   //char * nomAutomata;
-  char * nomNodo;
-  Transicion_t transiciones [0];
+  char* nomNodo;
+  GSList* transiciones;//Transicion_t transiciones [0];
   //tuberia entrada
   //tuberia salida [] esto debe ir pero dentro del proceso no aqui
 
@@ -58,12 +58,12 @@ typedef struct Estado Estado_t;
 
 struct Automata
 {
-   char nombre [0]; 
+   char* nombre; 
    char * alpha [0];
    char * states[0];
-   Estado_t estados[0];//talves es mejor usar glist
+   GSList* estados;//Estado_t estados[0];
    Estado_t inicial;
-   Estado_t final [1];
+   GSList* final;//Estado_t final [1];
 };
 typedef struct Automata Automata_t;
 

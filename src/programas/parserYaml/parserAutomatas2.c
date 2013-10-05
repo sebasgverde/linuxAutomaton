@@ -65,27 +65,6 @@ typedef struct Automata * Pautomata_t;
 
 //------------------------------------
 
-
-
-
-struct item {
-  int id;
-  float valueUnit;
-  int units;
-};
-
-typedef struct item item_t;
-typedef struct item* pitem_t;
-
-struct invoice {
-  int id;
-  char* name;
-  GSList* items;
-};
-
-typedef struct invoice invoice_t;
-typedef struct invoice* pinvoice_t;
-
 static void
 usage(char *progname) {
   fprintf(stderr, "Usage: %s <file>\n", progname);

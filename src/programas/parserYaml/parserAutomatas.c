@@ -48,10 +48,10 @@ typedef struct Estado * Pestado_t;
 struct Automata
 {
    char* nombre; 
-   char * alpha [50];
-   char * states[20];
+   char * alpha [0];
+   char * states[0];
    GSList* estados;//Estado_t estados[0];
-   char inicial;
+   Estado_t inicial;
    GSList* final;//Estado_t final [1];
 };
 typedef struct Automata Automata_t;
@@ -181,55 +181,14 @@ void asignarAutomata(Pautomata_t pautom)
   siguienteEvento(&parser,&event);//automata valor
   pautom->nombre = mallocAString();
 
-    siguienteEvento(&parser,&event);//descripcion
-  siguienteEvento(&parser,&event);//descripcion valor
+    siguienteEvento(&parser,&event);//descricion
+  siguienteEvento(&parser,&event);//descricion valor
   siguienteEvento(&parser,&event);//alpha
   siguienteEvento(&parser,&event);//secuencia alpha
 
-  siguienteEvento(&parser,&event);//valor
- // int i = 0;
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia alpha valor
-      //pautom->alpha[i] = mallocAString();
-      //i++;
-  }
-
-  siguienteEvento(&parser,&event);//estados
-  siguienteEvento(&parser,&event);//secuencia estados
-  siguienteEvento(&parser,&event);//valor estado
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia estado valor
-  }
-
-  siguienteEvento(&parser,&event);//start
-  siguienteEvento(&parser,&event);//start valor
-  pautom->inicial = mallocAString();
-
-  siguienteEvento(&parser,&event);//final
-  siguienteEvento(&parser,&event);//valor finales
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia estado valor
-  }
-
-  siguienteEvento(&parser,&event);//delta
+  asignarAlfabeto
 
 }
-
-void asignarEstados(Pestado_t pestado)
-{
-    siguienteEvento(&parser,&event);//node valor
-    pestado->nomNodo = mallocAString();
-
-    siguienteEvento(&parser,&event);//trans
-
-
-}
-
-void asiganarTransiciones()
-{}
 
 void asignarCosas2(pitem_t pitem)
 {
@@ -265,8 +224,6 @@ GSList* parsingInvoicesFile(const char* filename) {
 
   GSList* listaAutomatas;
   Pautomata_t pautom = NULL;
-  Pestado_t pestado = NULL;
-  Ptransicion_t ptrans = NULL;
 
   yaml_parser_initialize(&parser);
   yaml_parser_set_input_file(&parser, infile);
@@ -285,11 +242,6 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
-
     case one:
       switch (event.type) {
       case YAML_STREAM_END_EVENT:
@@ -303,13 +255,6 @@ GSList* parsingInvoicesFile(const char* filename) {
         break;
       }
       break;
-
-
-
-
-
-
-
 
     case two:
       switch (event.type) {
@@ -327,12 +272,6 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
-
-
     case three:
       switch(event.type) {
       case YAML_MAPPING_START_EVENT://inicia un automata
@@ -349,18 +288,12 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
-
-
-
     case four:
       switch(event.type) {
-      case YAML_SCALAR_EVENT://automata
+      case YAML_SCALAR_EVENT:
 
           asignarAutomata(pautom);
+
 
     state = five;
   break;
@@ -371,16 +304,12 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
     case five:
       switch(event.type) {
-      case YAML_SEQUENCE_START_EVENT://inicia secuencia de estados
+      case YAML_SEQUENCE_START_EVENT:
   state = six;
   break;
-      case YAML_MAPPING_END_EVENT://termina automata 
+      case YAML_MAPPING_END_EVENT:
   state = three;
   break;
 
@@ -390,20 +319,14 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
-
-
     case six:
       switch(event.type) {
-      case YAML_MAPPING_START_EVENT://nuevo estado
-  pestado = (Pestado_t) malloc(sizeof(Estado_t));
-  pautom->estados = g_slist_append(pautom->estados, pestado);
+      case YAML_MAPPING_START_EVENT:
+  pitem = (pitem_t) malloc(sizeof(item_t));
+  pinvoice->items = g_slist_append(pinvoice->items, pitem);
   state = seven;
   break;
-      case YAML_SEQUENCE_END_EVENT://termina secuencia de estados
+      case YAML_SEQUENCE_END_EVENT:
   state = five;
   break;
       default:
@@ -412,48 +335,14 @@ GSList* parsingInvoicesFile(const char* filename) {
       }
       break;
 
-
-
-
-
-
-
-
-
-
     case seven:
       switch(event.type) {
-      case YAML_SCALAR_EVENT://node
-      asignarEstados(pitem);
+      case YAML_SCALAR_EVENT:
+      asignarCosas2(pitem);
 
-  state = eight;
+  state = seven;
   break;
-    /*  case YAML_MAPPING_END_EVENT:
-  state = six;
-  break;*/
-
-      default:
-  state = showErrorState(state, event.type);
-  break;
-      }
-      break;
-
-
-
-
-
-
-
-case eight:
-       switch(event.type) {
-      case YAML_SEQUENCE_START_EVENT://inicia secuencia de transiciones
-  state = nine;
-  break;
-      case YAML_SCALAR_EVENT://no tiene transiciones
-    pestado->transiciones = NULL;
-    state = eight;
-    break;
-      case YAML_MAPPING_END_EVENT://termina nodo
+      case YAML_MAPPING_END_EVENT:
   state = six;
   break;
 
@@ -462,53 +351,6 @@ case eight:
   break;
       }
       break;
-
-
-
-
-    case nine:
-      switch(event.type)
-      {
-        case YAML_MAPPING_START_EVENT://nueva transicion
-
-      ptrans = (Ptransicion_t) malloc(sizeof(Transicion_t));
-  pautom->estados->transiciones = g_slist_append( pautom->estados->transiciones, ptrans);
-  state = ten;
-  break;
-      case YAML_SEQUENCE_END_EVENT://termina secuencia de transiciones
-  state = eight;
-  break;
-      default:
-  state = showErrorState(state, event.type);
-  break;
-      }
-      break;
-
-
-
-
-
-
-    case ten:
-switch(event.type) {
-      case YAML_SCALAR_EVENT://in
-      asiganarTransiciones(pitem);
-
-  state = ten;
-  break;
-      case YAML_MAPPING_END_EVENT://termina transicion
-  state = nine;
-  break;
-
-      default:
-  state = showErrorState(state, event.type);
-  break;
-      }
-      break;
-
-
-
-
 
     case end:
       cont = FALSE;

@@ -146,18 +146,22 @@ enum state showErrorState(enum state curr_state,
 
 
 
- yaml_parser_t parser;
-  yaml_event_t event;
-  FILE *infile;
-  int cont = TRUE;
-  pitem_t pitem = NULL;
-  pinvoice_t pinvoice = NULL;
-  GSList* invoices = NULL;
-  state_t state = start;
+yaml_parser_t parser;
+yaml_event_t event;
+
+
+void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
+{
+  //antes la tenia recibiento el struct y no el *, pero parece que eso clona 
+  //el struct, con esto de paso de parametros y eso es mejor siempre pasar parametros
+  //referencia y no por valor
+          yaml_event_delete(even);
+        yaml_parser_parse(parse, even);
+}
 
 
 
-void asignarCosas()
+void asignarCosas(invoice_t * pinvoice)
 {
   pinvoice->id = atoi((char*)event.data.scalar.value);
   siguienteEvento(&parser,&event);
@@ -172,7 +176,7 @@ void asignarCosas()
   pinvoice->items = NULL;
 }
 
-void asignarCosas2()
+void asignarCosas2(pitem_t pitem)
 {
   siguienteEvento(&parser,&event);//item valor
   pitem->id = atoi((char*)event.data.scalar.value);
@@ -188,14 +192,6 @@ void asignarCosas2()
 }
 
 
-void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
-{
-  //antes la tenia recibiento el struct y no el *, pero parece que eso clona 
-  //el struct, con esto de paso de parametros y eso es mejor siempre pasar parametros
-  //referencia y no por valor
-          yaml_event_delete(even);
-        yaml_parser_parse(parse, even);
-}
 
 
 
@@ -204,8 +200,13 @@ void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
 
 GSList* parsingInvoicesFile(const char* filename) {
  
-
+  FILE *infile;
+  int cont = TRUE;
   infile = fopen(filename, "r");
+  pitem_t pitem = NULL;
+  pinvoice_t pinvoice = NULL;
+  GSList* invoices = NULL;
+  state_t state = start;
 
   yaml_parser_initialize(&parser);
   yaml_parser_set_input_file(&parser, infile);
@@ -276,8 +277,8 @@ GSList* parsingInvoicesFile(const char* filename) {
 
    // yaml_event_delete(&event);
      //   yaml_parser_parse(&parser, &event);
-siguienteEvento(&parser,&event);
-        asignarCosas();
+  siguienteEvento(&parser,&event);
+          asignarCosas(pinvoice);
 
 
     state = five;
@@ -323,7 +324,7 @@ siguienteEvento(&parser,&event);
     case seven:
       switch(event.type) {
       case YAML_SCALAR_EVENT:
-      asignarCosas2();
+      asignarCosas2(pitem);
 
   state = seven;
   break;

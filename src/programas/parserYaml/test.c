@@ -18,6 +18,47 @@ p->x = 8;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+variables importantes pra el debuger
+event.data.scalar.value
+event.type
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <yaml.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +67,7 @@ p->x = 8;
 struct Transicion
 {
   char* entrada;
-  char* next;
+  char* siguiente;
 };
 typedef struct Transicion Transicion_t;
 typedef struct Transicion * Ptransicion_t;
@@ -51,7 +92,7 @@ struct Automata
    char * alpha [50];
    char * states[20];
    GSList* estados;//Estado_t estados[0];
-   char inicial;
+   char* inicial;
    GSList* final;//Estado_t final [1];
 };
 typedef struct Automata Automata_t;
@@ -94,8 +135,8 @@ usage(char *progname) {
 
 // I guess this is too pedantic, but to drop all warnings requerided that
 // level.
-enum state { start = 0, one, two, three, four, five, six, seven,
-       end = 8, error = 9 };
+enum state { start = 0, one, two, three, four, five, six, seven, eight, nine, ten,
+       end = 11, error = 12 };
 
 typedef enum state state_t;
 
@@ -150,22 +191,6 @@ void siguienteEvento(yaml_parser_t * parse, yaml_event_t * even)
         yaml_parser_parse(parse, even);
 }
 
-
-
-void asignarCosas(invoice_t * pinvoice)
-{
-  pinvoice->id = atoi((char*)event.data.scalar.value);
-  siguienteEvento(&parser,&event);
-  siguienteEvento(&parser,&event);
-
-  pinvoice->name = (char *) malloc(sizeof(char) *
-     (event.data.scalar.length + 1));
-  strcpy(pinvoice->name, (char*) event.data.scalar.value);
-  pinvoice->name[event.data.scalar.length] = '\0';
-  siguienteEvento(&parser,&event);
-
-  pinvoice->items = NULL;
-}
 
 char* mallocAString()
 {
@@ -228,27 +253,17 @@ void asignarEstados(Pestado_t pestado)
 
 }
 
-void asiganarTransiciones()
-{}
-
-void asignarCosas2(pitem_t pitem)
+void asiganarTransiciones(Ptransicion_t ptrans)
 {
-  siguienteEvento(&parser,&event);//item valor
-  pitem->id = atoi((char*)event.data.scalar.value);
+    siguienteEvento(&parser,&event);//in valor
+    ptrans->entrada = mallocAString();
 
-  siguienteEvento(&parser,&event);//unitvalue
-  siguienteEvento(&parser,&event);//unitvalue valor
-  pitem->valueUnit = atof((char *) event.data.scalar.value);
+    siguienteEvento(&parser,&event);//next
+    siguienteEvento(&parser,&event);//next valor
+    ptrans->siguiente = mallocAString();
 
-  siguienteEvento(&parser,&event);//units
-  siguienteEvento(&parser,&event);//units valor
-  pitem->units = atoi((char*)event.data.scalar.value);
 
 }
-
-
-
-
 
 
 
@@ -257,13 +272,13 @@ GSList* parsingInvoicesFile(const char* filename) {
  
   FILE *infile;
   int cont = TRUE;
-  infile = fopen(filename, "r");
+  infile = fopen("automatas.yaml", "r");
   pitem_t pitem = NULL;
   pinvoice_t pinvoice = NULL;
   GSList* invoices = NULL;
   state_t state = start;
 
-  GSList* listaAutomatas;
+  GSList* listaAutomatas = NULL;
   Pautomata_t pautom = NULL;
   Pestado_t pestado = NULL;
   Ptransicion_t ptrans = NULL;
@@ -424,7 +439,7 @@ GSList* parsingInvoicesFile(const char* filename) {
     case seven:
       switch(event.type) {
       case YAML_SCALAR_EVENT://node
-      asignarEstados(pitem);
+      asignarEstados(pestado);
 
   state = eight;
   break;
@@ -444,7 +459,7 @@ GSList* parsingInvoicesFile(const char* filename) {
 
 
 
-case eight:
+  case eight:
        switch(event.type) {
       case YAML_SEQUENCE_START_EVENT://inicia secuencia de transiciones
   state = nine;
@@ -472,7 +487,7 @@ case eight:
         case YAML_MAPPING_START_EVENT://nueva transicion
 
       ptrans = (Ptransicion_t) malloc(sizeof(Transicion_t));
-  pautom->estados->transiciones = g_slist_append( pautom->estados->transiciones, ptrans);
+  pestado->transiciones = g_slist_append( pestado->transiciones, ptrans);
   state = ten;
   break;
       case YAML_SEQUENCE_END_EVENT://termina secuencia de transiciones
@@ -490,9 +505,9 @@ case eight:
 
 
     case ten:
-switch(event.type) {
+  switch(event.type) {
       case YAML_SCALAR_EVENT://in
-      asiganarTransiciones(pitem);
+      asiganarTransiciones(ptrans);
 
   state = ten;
   break;
@@ -523,21 +538,35 @@ switch(event.type) {
   } while (cont);
 
   yaml_parser_delete(&parser);
-  return invoices;
+  return listaAutomatas;
 }
 
 int
 main(int argc, char *argv[]) {
-  GSList *invoices, *node;
+  GSList *node, *trans, *automatas, *estaditos;
 
-  if (argc != 2) {
+
+  /*if (argc != 2) {
     usage(argv[0]);
-  }
+  }*/
 
-  invoices = parsingInvoicesFile(argv[1]);
+  automatas = parsingInvoicesFile("automatas.yaml");//argv[1]"");
 
-  for (node = invoices; node; node = node->next) {
-    showInvoice((pinvoice_t) node->data);
+  for (node = automatas; node; node = node->next) {
+    //showInvoice((pinvoice_t) node->data);
+    Pautomata_t a= (Pautomata_t)node->data;
+    printf("\nautomata: %s\n", a->nombre);
+    for(estaditos = a->estados; estaditos; estaditos=estaditos->next)
+    {
+      Pestado_t b = (Pestado_t) estaditos->data;
+      printf("Estado: %s\n", b->nomNodo);
+      for(trans=b->transiciones;trans;trans = trans->next)
+      {
+        Ptransicion_t c = (Ptransicion_t)trans->data;
+        printf("%s\n", c->entrada);
+        printf("%s\n\n", c->siguiente);
+      }
+    }      
   }
   return 0;
 }

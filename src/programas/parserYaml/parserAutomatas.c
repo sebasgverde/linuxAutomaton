@@ -89,8 +89,8 @@ typedef struct Estado * Pestado_t;
 struct Automata
 {
    char* nombre; 
-   char * alpha [50];
-   char * states[20];
+   GSList* alpha;
+   GSList* states;
    GSList* estados;//Estado_t estados[0];
    char* inicial;
    GSList* final;//Estado_t final [1];
@@ -201,32 +201,55 @@ char* mallocAString()
   return apuntador;
 }
 
+GSList* listaDeStrings()
+{
+  GSList* temp = NULL;
+  char* charTemp = NULL;
+
+    while(event.type != YAML_SEQUENCE_END_EVENT )
+  {
+    if(event.data.scalar.length > 0)
+    {
+      charTemp = mallocAString();
+      temp = g_slist_append(temp, charTemp);
+    }
+    siguienteEvento(&parser,&event);//secuencia alpha valor
+    //pautom->alpha[i] = mallocAString();
+    //i++;
+  }
+  return temp;
+}
+
 void asignarAutomata(Pautomata_t pautom)
 {
+  GSList* cosa;//para imprimir alpha, states y final(debug)
+
+
   siguienteEvento(&parser,&event);//automata valor
   pautom->nombre = mallocAString();
 
-    siguienteEvento(&parser,&event);//descripcion
+  siguienteEvento(&parser,&event);//descripcion
   siguienteEvento(&parser,&event);//descripcion valor
   siguienteEvento(&parser,&event);//alpha
   siguienteEvento(&parser,&event);//secuencia alpha
 
   siguienteEvento(&parser,&event);//valor
- // int i = 0;
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia alpha valor
-      //pautom->alpha[i] = mallocAString();
-      //i++;
-  }
+
+  pautom -> alpha = listaDeStrings();
+
+  //for (cosa = pautom->alpha; cosa; cosa=cosa->next)
+    //printf("alfabeto : %s\n",cosa->data);
 
   siguienteEvento(&parser,&event);//estados
   siguienteEvento(&parser,&event);//secuencia estados
   siguienteEvento(&parser,&event);//valor estado
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia estado valor
-  }
+  
+
+  pautom -> states = listaDeStrings();
+  
+  //for (cosa = pautom->states; cosa; cosa=cosa->next)
+    //printf("estados : %s\n",cosa->data);
+
 
   siguienteEvento(&parser,&event);//start
   siguienteEvento(&parser,&event);//start valor
@@ -234,10 +257,11 @@ void asignarAutomata(Pautomata_t pautom)
 
   siguienteEvento(&parser,&event);//final
   siguienteEvento(&parser,&event);//valor finales
-  while(event.type != YAML_SEQUENCE_END_EVENT )
-  {
-      siguienteEvento(&parser,&event);//secuencia estado valor
-  }
+  
+    pautom -> final = listaDeStrings();
+
+  //for (cosa = pautom->final; cosa; cosa=cosa->next)
+    //printf("estados finales : %s\n",cosa->data);
 
   siguienteEvento(&parser,&event);//delta
 
@@ -543,7 +567,7 @@ GSList* parsingInvoicesFile(const char* filename) {
 
 int
 main(int argc, char *argv[]) {
-  GSList *node, *trans, *automatas, *estaditos;
+  GSList *cosa,*node, *trans, *automatas, *estaditos;
 
 
   /*if (argc != 2) {
@@ -556,6 +580,16 @@ main(int argc, char *argv[]) {
     //showInvoice((pinvoice_t) node->data);
     Pautomata_t a= (Pautomata_t)node->data;
     printf("\nautomata: %s\n", a->nombre);
+
+
+
+    for (cosa = a->alpha; cosa; cosa=cosa->next)
+      printf("alfabeto : %s\n",cosa->data);   
+    for (cosa = a->states; cosa; cosa=cosa->next)
+      printf("Estados : %s\n",cosa->data);  
+    for (cosa = a->final; cosa; cosa=cosa->next)
+      printf("Estados finales : %s\n",cosa->data);  
+
     for(estaditos = a->estados; estaditos; estaditos=estaditos->next)
     {
       Pestado_t b = (Pestado_t) estaditos->data;

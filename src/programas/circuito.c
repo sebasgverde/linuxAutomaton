@@ -102,30 +102,44 @@ main() {
   int tuberia1[2];
   int tuberia2[2];
   int tuberia3[2];
+  int a=0;
+  char b [2] ="a";
 
   pipe(tuberia1);
   pipe(tuberia2);
   pipe(tuberia3);
 
+  printf("hola 1 a es %d b es %s\n",a,b);
+
   if (fork() == 0) { // Segundo hijo
- 
+ a++;
+ b[1] = '1';
+  printf("hola 2 a es %d b es %s\n",a,b);
     close(0);
     close(1);
-    close(tuberia3[0]);
-    close(tuberia3[1]);
+    //close(tuberia3[0]);
+    //close(tuberia3[1]);
     segundoHijo(tuberia1[0], tuberia2[1]);
   }
   else if (fork() == 0) { // Tercer hijo
+     a++;
+     // b[1] = '2';
+
+  printf("hola 3 a es %d b es %s\n",a,b);
+
     close(0);
     close(1);
-
-    close(tuberia1[0]);
-    close(tuberia1[1]);
+    //close(tuberia1[0]);
+    //close(tuberia1[1]);
     tercerHijo(tuberia2[0], tuberia3[1]);
   }
   else { // Padre
-    close(tuberia2[0]);
-    close(tuberia2[1]);
+         a++;
+         // b[1] = '3';
+
+  printf("hola 4 a es %d b es %s\n",a,b);
+   // close(tuberia2[0]);
+    //close(tuberia2[1]);
     procesoPadre(tuberia3[0], tuberia1[1]);
   }
 }

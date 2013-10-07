@@ -15,54 +15,26 @@ p->x = 8;
 */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 variables importantes pra el debuger
 event.data.scalar.value
 event.type
 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include <yaml.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+
+
+
+
+
+
+
+
+
+//-----parser automatas-----------------------------------------
 
 struct Transicion
 {
@@ -75,12 +47,9 @@ typedef struct Transicion * Ptransicion_t;
 
 struct Estado
 {
-  //char * nomAutomata;
   char* nomNodo;
   GSList* transiciones;//Transicion_t transiciones [0];
-  //tuberia entrada
-  //tuberia salida [] esto debe ir pero dentro del proceso no aqui
-
+  //tuberia(int) entrada
 };
 typedef struct Estado Estado_t;
 typedef struct Estado * Pestado_t;
@@ -90,42 +59,19 @@ struct Automata
 {
    char* nombre; 
    GSList* alpha;
-   GSList* states;
-   GSList* estados;//Estado_t estados[0];
+   GSList* states;//lista de letras
+   //int* tuberiasSalida;array
+   //int* tuberiasEntrada;array
    char* inicial;
    GSList* final;//Estado_t final [1];
+   GSList* estados;//lista de structs
+
 };
 typedef struct Automata Automata_t;
 typedef struct Automata * Pautomata_t;
 
 
 // Automata_t automatasPrograma [];
-
-
-
-
-//------------------------------------
-
-
-
-
-struct item {
-  int id;
-  float valueUnit;
-  int units;
-};
-
-typedef struct item item_t;
-typedef struct item* pitem_t;
-
-struct invoice {
-  int id;
-  char* name;
-  GSList* items;
-};
-
-typedef struct invoice invoice_t;
-typedef struct invoice* pinvoice_t;
 
 static void
 usage(char *progname) {
@@ -140,26 +86,6 @@ enum state { start = 0, one, two, three, four, five, six, seven, eight, nine, te
 
 typedef enum state state_t;
 
-float valueItems(pitem_t item) {
-  return (float) item->units * item->valueUnit;
-}
-
-void showItem(pitem_t item) {
-  fprintf(stdout, "%5d\t%8.2f\t%5d\t%8.2f\n",
-    item->id, item->valueUnit, item->units,
-    valueItems(item));
-}
-
-void showInvoice(pinvoice_t invoice) {
-  GList* node = NULL;
-  fprintf(stdout, "ID: %d\nNAME: %s\n", invoice->id, invoice->name);
-  float total = 0.0f;
-  for (node = invoice->items; node; node = node->next) {
-    total += valueItems((pitem_t) node->data);
-    showItem((pitem_t) node->data);
-  }
-  fprintf(stdout, "\t\t\t\t%8.2f\n", total);
-}
 
 enum state showErrorState(enum state curr_state, 
         yaml_event_type_t event_type) {
@@ -167,16 +93,6 @@ enum state showErrorState(enum state curr_state,
     curr_state, event_type);
   return error;
 }
-
-
-
-
-
-
-
-
-
-
 
 yaml_parser_t parser;
 yaml_event_t event;
@@ -290,16 +206,12 @@ void asiganarTransiciones(Ptransicion_t ptrans)
 }
 
 
-
-
 GSList* parsingInvoicesFile(const char* filename) {
  
   FILE *infile;
   int cont = TRUE;
   infile = fopen("automatas.yaml", "r");
-  pitem_t pitem = NULL;
-  pinvoice_t pinvoice = NULL;
-  GSList* invoices = NULL;
+
   state_t state = start;
 
   GSList* listaAutomatas = NULL;
@@ -565,23 +477,87 @@ GSList* parsingInvoicesFile(const char* filename) {
   return listaAutomatas;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+//-------------procesos---------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+esto es lo que debe ir en sysctrl
+
+*/
+
+int numeroEstadosAutomata(GSList* states)
+{
+  GSList* node;
+  int numero = 0;
+  for(node = states;node;node = node->next)//me esat
+  {
+    numero++;
+  }
+  return numero;
+}
+
+void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, int numEst)
+{
+  printf("aut: %s estad: %s entrada: %d\n",nomAut ,nombreEst,in);
+  int i;
+  for(i=0; i<numEst;i++)
+  {
+    printf("%d,%d  ", pipes[i][0],pipes[i][1]);
+  }
+  printf("\n");
+}
+
 int
 main(int argc, char *argv[]) {
-  GSList *cosa,*node, *trans, *automatas, *estaditos;
-
+  GSList *cosa,*node, *trans, *automatas, *estadito, *automata;
+  int **pipes;//lista de arreglos
+  char* entrada = "bab";
 
   /*if (argc != 2) {
     usage(argv[0]);
   }*/
 
   automatas = parsingInvoicesFile("automatas.yaml");//argv[1]"");
-
+/*
   for (node = automatas; node; node = node->next) {
     //showInvoice((pinvoice_t) node->data);
     Pautomata_t a= (Pautomata_t)node->data;
     printf("\nautomata: %s\n", a->nombre);
-
-
 
     for (cosa = a->alpha; cosa; cosa=cosa->next)
       printf("alfabeto : %s\n",cosa->data);   
@@ -601,6 +577,49 @@ main(int argc, char *argv[]) {
         printf("%s\n\n", c->siguiente);
       }
     }      
+  }*/
+
+  for(automata = automatas; automata; automata = automata->next)
+  {
+    //cada automata
+    Pautomata_t pautomata= (Pautomata_t)automata->data;
+    int numeroEstados = numeroEstadosAutomata(pautomata->states);
+    pipes = (int**)malloc(numeroEstados * sizeof(int*));//numero de filas
+    printf("numero de estados: %d\n", numeroEstados);
+    int i;
+    for(i = 0; i < numeroEstados; i++)
+    {
+      pipes[i] = (int*)malloc(2*sizeof(int));//nuevo arreglo de 2 posiciones
+      pipe(pipes[i]);//nueva tuberia
+
+    }
+
+     for(i=0; i<numeroEstados;i++)
+    {
+      printf("%d  ", pipes[i][0]);
+    }
+    printf("\n");
+    sleep(1);
+
+    i=0;
+    for(estadito = pautomata->estados;estadito;estadito = estadito->next)
+    {
+      Pestado_t pestadito = (Pestado_t) estadito->data;
+      int pid = fork();
+      if(pid == 0)
+      {
+        procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states,numeroEstados);
+        return;
+      }
+      i++;
+      sleep(1);
+    }
+
+
   }
+    
+
+
+
   return 0;
 }

@@ -37,10 +37,10 @@ void tercerHijo(int in, int out) {
       int i;
       int j;
       for (i = 0, j = c - 1; i < c/2; i++, j--) {
-	char tmp;
-	tmp = buffer[i];
-	buffer[i] = buffer[j];
-	buffer[j] = tmp;
+      	char tmp;
+      	tmp = buffer[i];
+      	buffer[i] = buffer[j];
+      	buffer[j] = tmp;
       }
       write(out, buffer, c);
     }
@@ -115,8 +115,8 @@ main() {
  a++;
  b[1] = '1';
   printf("hola 2 a es %d b es %s\n",a,b);
-    close(0);
-    close(1);
+    //close(0);
+    //close(1);
     //close(tuberia3[0]);
     //close(tuberia3[1]);
     segundoHijo(tuberia1[0], tuberia2[1]);
@@ -127,8 +127,8 @@ main() {
 
   printf("hola 3 a es %d b es %s\n",a,b);
 
-    close(0);
-    close(1);
+   // close(0);
+    //close(1);
     //close(tuberia1[0]);
     //close(tuberia1[1]);
     tercerHijo(tuberia2[0], tuberia3[1]);

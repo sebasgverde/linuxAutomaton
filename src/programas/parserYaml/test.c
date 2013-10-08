@@ -500,7 +500,7 @@ GSList* parsingInvoicesFile(const char* filename) {
 
 
 
-
+#define BUFFER_MAXIMO 256
 
 
 
@@ -520,6 +520,105 @@ esto es lo que debe ir en sysctrl
 
 */
 
+/*char* evaluarCadena(char* cadena, GSList* transiciones)
+{
+  GSList* node;
+  int pos = (int)cadena[0];
+
+  for(node=transiciones;node;node=node->next)
+  {
+    Ptransicion_t tran = (Ptransicion_t) node->data;
+    if(strcmp(tran->entrada,cadena[pos])==0)
+    {
+      return(tran->siguiente);
+    }
+  }
+  return '0';
+}*/
+
+int obtenerDescriptor(char* estado,int** pipes,GSList* states)
+{
+  GSList* node;
+  int pos = 0;
+
+  for(node=states;node;node=node->next)
+  {
+    if(strcmp(node->data, estado)==0)
+      break;
+    else
+      pos++;
+  }
+
+  return pipes[pos][1];
+}
+
+void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal)
+{
+  /*printf("aut: %s estad: %s  final: %d entrada: %d\n",nomAut ,nombreEst,esFinal,in);
+  int i;
+  for(i=0; i<numEst;i++)
+  {
+    printf("%d,%d ", pipes[i][0],pipes[i][1]);
+  }
+  printf("el pid es: %d\n", getpid());
+  printf("\n");*/
+  char* buffer[BUFFER_MAXIMO];
+  int tamLeido;
+
+  if(strcmp(nombreEst, "A")==0)
+  {
+    int desc=obtenerDescriptor("B",pipes,states);
+    write(desc,"esto me lo envio A ",BUFFER_MAXIMO);
+    //printf("aut: %s estad: %s  recibido%s\n",nomAut ,nombreEst,buffer);
+  }
+  while(tamLeido = read(in, buffer, BUFFER_MAXIMO))
+  {
+    if (tamLeido == 0)
+    {
+     break;
+    }
+    else if (tamLeido == -1) 
+      break;
+    else if (tamLeido > 0) 
+    {
+      /*if(strcmp(buffer[0],'0')==0)
+      {
+        if(esFinal)
+          printf("cadena reconocida\n");
+        else
+          printf("cadena no reconocida en estado: %s\n", nombreEst);
+        }
+        else
+        {
+        char* siguienteEstado = evaluarCadena(buffer,transiciones);
+        if(strcmp(siguienteEstado,'0')==0)
+        {
+          printf("cadena rechazada en estado: %s\n", nombreEst);
+        }
+        else
+        {
+          buffer[0]=(char)(int)buffer[0];
+          write(obtenerDescriptor(siguienteEstado,pipes,states),buffer,tamLeido);
+        }
+
+      }*/
+      if(strcmp(nombreEst, "A")==0)
+      {
+        int desc=obtenerDescriptor("B",pipes,states);
+        write(desc,"esto me lo envio A despues de leer sisctrl",BUFFER_MAXIMO);
+      }
+
+      if(strcmp(nombreEst, "B")==0)
+        printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,buffer);
+
+    }
+  }
+
+
+}
+
+
+
 int numeroEstadosAutomata(GSList* states)
 {
   GSList* node;
@@ -531,22 +630,26 @@ int numeroEstadosAutomata(GSList* states)
   return numero;
 }
 
-void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, int numEst)
+//cuando empiezo a lanzar los procesos uso esto para saber si el estado
+//es final
+int esFinal(char* nombreEst, GSList* finales)
 {
-  printf("aut: %s estad: %s entrada: %d\n",nomAut ,nombreEst,in);
-  int i;
-  for(i=0; i<numEst;i++)
+  int resp = 0;
+  GSList* node;
+
+  for (node = finales; node; node = node->next) 
   {
-    printf("%d,%d  ", pipes[i][0],pipes[i][1]);
+    if(strcmp(node->data,nombreEst)==0)
+      resp=1;
   }
-  printf("\n");
+  return resp;
+
 }
 
 int
 main(int argc, char *argv[]) {
   GSList *cosa,*node, *trans, *automatas, *estadito, *automata;
   int **pipes;//lista de arreglos
-  char* entrada = "bab";
 
   /*if (argc != 2) {
     usage(argv[0]);
@@ -598,26 +701,29 @@ main(int argc, char *argv[]) {
     {
       printf("%d  ", pipes[i][0]);
     }
-    printf("\n");
+    printf("\n\n");
     sleep(1);
 
     i=0;
     for(estadito = pautomata->estados;estadito;estadito = estadito->next)
     {
       Pestado_t pestadito = (Pestado_t) estadito->data;
+      int finalONo = esFinal(pestadito->nomNodo,pautomata -> final);
       int pid = fork();
       if(pid == 0)
       {
-        procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states,numeroEstados);
+        procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo);
         return;
       }
       i++;
-      sleep(1);
+      //sleep(1);
     }
+    write(pipes[1][1],"esto me lo envio el sisctrl",BUFFER_MAXIMO);
 
 
   }
     
+    write(pipes[0][1],"esto me lo envio el sisctrl",BUFFER_MAXIMO);
 
 
 

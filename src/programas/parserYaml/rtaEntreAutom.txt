@@ -1,0 +1,13 @@
+ingrese entrada
+{ recog: "mensaje reconocido", rest: "mensaje sin reconocer" }
+
+STREAM START
+<b>Start Document</b>
+<b>Start Mapping</b>
+Got scalar (value recog)
+Got scalar (value mensaje reconocido)
+Got scalar (value rest)
+Got scalar (value mensaje sin reconocer)
+<b>End Mapping</b>
+<b>End Document</b>
+STREAM END

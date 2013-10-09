@@ -3,7 +3,11 @@
 
 int main(void)
 {
-  FILE *fh = fopen("config/public.yaml", "r");
+  char a [80];
+
+fprintf(stdout,"ingrese entrada\n","%s");
+//scanf("%[^\n]s",a);//para que que reconosca espaciosç
+read(0,a,80);
   yaml_parser_t parser;
   yaml_event_t  event;   /* New variable */
 

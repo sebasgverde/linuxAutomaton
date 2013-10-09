@@ -1,0 +1,15 @@
+ingrese entrada
+{ codterm: 1, recog: "cadena reconocida", rest: "restante" }
+
+STREAM START
+<b>Start Document</b>
+<b>Start Mapping</b>
+Got scalar (value codterm)
+Got scalar (value 1)
+Got scalar (value recog)
+Got scalar (value cadena reconocida)
+Got scalar (value rest)
+Got scalar (value restante)
+<b>End Mapping</b>
+<b>End Document</b>
+STREAM END

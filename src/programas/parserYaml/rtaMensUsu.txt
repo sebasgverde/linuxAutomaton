@@ -1,0 +1,13 @@
+ingrese entrada
+{ cmd: send, msg: "cualquier mensaje" }
+
+STREAM START
+<b>Start Document</b>
+<b>Start Mapping</b>
+Got scalar (value cmd)
+Got scalar (value send)
+Got scalar (value msg)
+Got scalar (value cualquier mensaje)
+<b>End Mapping</b>
+<b>End Document</b>
+STREAM END

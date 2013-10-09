@@ -1,1 +1,1 @@
-{asfasf: asdfas, asf: aq}
+{ cmd: info, msg: "One" }

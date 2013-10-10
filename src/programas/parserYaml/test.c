@@ -26,6 +26,8 @@ event.type
 #include <stdlib.h>
 #include <glib.h>
 #include <string.h>
+#include <signal.h>
+
 
 
 
@@ -49,6 +51,7 @@ struct Estado
   char* nomNodo;
   GSList* transiciones;//Transicion_t transiciones [0];
   //tuberia(int) entrada
+  int PidProceso;
 };
 typedef struct Estado Estado_t;
 typedef struct Estado * Pestado_t;
@@ -95,6 +98,17 @@ struct MensajeAutsisCtrl
 };
 typedef struct MensajeAutsisCtrl MensajeAutsisCtrl_t;
 typedef struct MensajeAutsisCtrl * PmensajeAutsisCtrl_t;
+
+struct TuberiasAutomata
+{ 
+  char* nombreAut;
+  int outEstEntrada;
+  int inAsisCtrl;
+  int outAsisCtrl;
+};
+typedef struct TuberiasAutomata TuberiasAutomata_t;
+typedef struct TuberiasAutomata * PtuberiasAutomata_t;
+
 
 static void
 usage(char *progname) {
@@ -797,8 +811,8 @@ int obtenerDescriptor(char* estado,int** pipes,GSList* states)
 
 void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal)
 {
-  /*printf("aut: %s estad: %s  final: %d entrada: %d\n",nomAut ,nombreEst,esFinal,in);
-  int i;
+  printf("aut: %s estad: %s  final: %d entrada: %d\n",nomAut ,nombreEst,esFinal,in);
+  /*int i;
   for(i=0; i<numEst;i++)
   {
     printf("%d,%d ", pipes[i][0],pipes[i][1]);
@@ -814,7 +828,8 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
   int tamLeido;
   PmensajeEntreAutomatas_t pmensaje;
 
-  
+  setpgid(0,getpgid(getppid()));
+  //printf("soy estado %s padre: %d y grupo es: %d\n", nombreEst,getppid(), getpgrp());
 
 
   while(tamLeido = read(in, buffer, BUFFER_MAXIMO))
@@ -920,14 +935,31 @@ int esFinal(char* nombreEst, GSList* finales)
 
 }
 
+void imprimirCosas(GSList* pipesAutomatas)
+{
+  GSList* cosa;
+    for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
+    {
+      PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
+      printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
+    }
+}
+
 int
 main(int argc, char *argv[]) {
-  GSList *cosa,*node, *trans, *automatas, *estadito, *automata;
+  GSList *node, *trans, *automatas, *estadito, *automata,*cosa;
   //PmensajeEntreAutomatas_t pmensaje;
   //PmensajeAutsisCtrl_t pmensaje;
   PmensajeDeUsuario_t pmensaje;
-  int **pipes;//lista de arreglos
+  PtuberiasAutomata_t ptuberias;
+  int **pipes;//lista de arreglos por estado para cada automata
+  GSList *pipesAutomatas;/*tuberias por cada automata para comuncarse 
+  con sisctrl y saber los estados de entrada*/
   char estadoLeido[1];
+  char cadenaEntrada[BUFFER_MAXIMO];
+  setsid();
+
+  //printf("soy sisctrl y mi pid es: %d y grupo: %d\n", getpid(),getpgrp());
 
   /*if (argc != 2) {
     usage(argv[0]);
@@ -950,8 +982,8 @@ main(int argc, char *argv[]) {
   printf("cmd:%s msg: %s\n",pmensaje->cmd, pmensaje->msg);
   */
 
-/*
-  for (node = automatas; node; node = node->next) {
+
+  /*for (node = automatas; node; node = node->next) {
     //showInvoice((pinvoice_t) node->data);
     Pautomata_t a= (Pautomata_t)node->data;
     printf("\nautomata: %s\n", a->nombre);
@@ -962,11 +994,11 @@ main(int argc, char *argv[]) {
       printf("Estados : %s\n",cosa->data);  
     for (cosa = a->final; cosa; cosa=cosa->next)
       printf("Estados finales : %s\n",cosa->data);  
-
+    GSList* estaditos;
     for(estaditos = a->estados; estaditos; estaditos=estaditos->next)
     {
       Pestado_t b = (Pestado_t) estaditos->data;
-      printf("Estado: %s\n", b->nomNodo);
+      printf("Estado: %s pid: %d\n", b->nomNodo, b->PidProceso);
       for(trans=b->transiciones;trans;trans = trans->next)
       {
         Ptransicion_t c = (Ptransicion_t)trans->data;
@@ -981,6 +1013,7 @@ main(int argc, char *argv[]) {
   {
     //cada automata
     Pautomata_t pautomata= (Pautomata_t)automata->data;
+
     int numeroEstados = numeroEstadosAutomata(pautomata->states);
     pipes = (int**)malloc(numeroEstados * sizeof(int*));//numero de filas
     printf("numero de estados: %d\n", numeroEstados);
@@ -992,41 +1025,70 @@ main(int argc, char *argv[]) {
 
     }
 
-     for(i=0; i<numeroEstados;i++)
+/*
+    for(i=0; i<numeroEstados;i++)
     {
       printf("%d  ", pipes[i][0]);
     }
     printf("\n\n");
-    sleep(1);
+    sleep(1);*/
+
+    /*aqui se llena la estructura tuberias automatas*/
+    ptuberias = (PtuberiasAutomata_t)malloc(sizeof(TuberiasAutomata_t));
+    pipesAutomatas = g_slist_append(pipesAutomatas, ptuberias);
+
+    ptuberias->nombreAut = (char*)malloc(strlen(pautomata->nombre));
+    strcpy(ptuberias->nombreAut, pautomata->nombre);
+
+    int tuberiaSisctrl[2];
+    pipe(tuberiaSisctrl);
+    ptuberias->inAsisCtrl = tuberiaSisctrl[0];
+    ptuberias->outAsisCtrl = tuberiaSisctrl[1];
+    printf("en la lista critica %s\n", ptuberias->nombreAut);
 
     i=0;
     for(estadito = pautomata->estados;estadito;estadito = estadito->next)
     {
       Pestado_t pestadito = (Pestado_t) estadito->data;
       int finalONo = esFinal(pestadito->nomNodo,pautomata -> final);
+
+      if(strcmp(pestadito->nomNodo, pautomata->inicial)==0)//si es el de entrada ponga la tuberia en que toca escribir
+            ptuberias->outEstEntrada = pipes[i][1];
+
       int pid = fork();
       if(pid == 0)
       {
         procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo);
         return;
       }
+
+      pestadito -> PidProceso = pid;
+      //printf("pid aut %s es %d\n",pestadito->nomNodo,pestadito->PidProceso );
+
+      // printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberias->nombreAut,ptuberias->outEstEntrada,ptuberias->inAsisCtrl,ptuberias->outAsisCtrl,);
+
       i++;
       //sleep(1);
     }
-   // while(1)
+
+
+       /* while(1)
     {
-          printf("ingrese estado\n" );
-          //scanf("%s",estadoLeido);
+          printf("ingrese cadena\n" );
+          scanf("%s",cadenaEntrada);
+
+          char* envio[BUFFER_MAXIMO];
+          sprintf(envio,"{ recog: , rest: %s }",cadenaEntrada);
           //int desc=obtenerDescriptor(estadoLeido,pipes,pautomata->states);
           int desc=obtenerDescriptor("A",pipes,pautomata->states);          
-          write(desc,"{ recog: , rest: bbaabbaabbaabbaabbcc }",BUFFER_MAXIMO);
+          write(desc,envio,BUFFER_MAXIMO);
           //write(desc,"{ recog: afgdf, rest: ccaaaaaabbcc }",BUFFER_MAXIMO);
 
-    }
+    }*/
   }
-
-
-
+  imprimirCosas(pipesAutomatas);/*me toco poner esta funcion no se
+  por que poniendo el for aca nunca paso de segmentation fault -_-*/
+ // kill(getpgrp(),1);
 
   return 0;
 }

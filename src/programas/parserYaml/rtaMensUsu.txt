@@ -1,5 +1,8 @@
 ingrese entrada
-{ cmd: send, msg: "cualquier mensaje" }
+{ cmd: send, msg: "aabbccbbaa" }
+{ cmd: info, msg: "Two" }
+{ cmd: info, msg: "" }
+
 
 STREAM START
 <b>Start Document</b>

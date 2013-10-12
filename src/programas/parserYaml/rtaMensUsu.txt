@@ -1,7 +1,10 @@
 ingrese entrada
-{ cmd: send, msg: "aabbccbbaa" }
+{ cmd: send, msg: "abbac" }
+{ cmd: info, msg: "One" }
 { cmd: info, msg: "Two" }
 { cmd: info, msg: "" }
+{ cmd: stop, msg: "" }
+
 
 
 STREAM START

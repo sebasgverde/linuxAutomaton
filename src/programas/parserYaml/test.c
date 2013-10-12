@@ -853,7 +853,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       break;
     else if (tamLeido > 0) 
     {
-        printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,buffer);
+        //printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,buffer);
 
         pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
         parserMensajeEntreAutomatas(pmensaje,buffer);
@@ -863,12 +863,14 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
         {
           if(esFinal)
           {
-            printf("cadena aceptada\n");
+            //printf("cadena aceptada\n");
+            printf("msgtype: accept\n accept:\n automata: %s\n msg: %s\n",nomAut, pmensaje->recog);
             return;//aceptar
           }
           else
           {
-            printf("cadena rechazada por no acabar en final\n");
+            //printf("cadena rechazada por no acabar en final\n");
+            printf("msgtype: reject\n reject:\n automata: %s\n msg: %s%s\n pos: %d\n",nomAut, pmensaje->recog,pmensaje->rest,strlen(pmensaje->recog));            
             return;//rechazar
           }
         }
@@ -877,7 +879,9 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
         char* result = evaluarCadena(pmensaje->recog, pmensaje->rest, transiciones);
         if(strcmp(result,"0")==0)
         {
-          printf("cadena rechazada por no encontrar transicion\n");
+          //printf("cadena rechazada por no encontrar transicion\n");
+          printf("msgtype: reject\n reject:\n automata: %s\n msg: %s%s\n pos: %d\n",nomAut, pmensaje->recog,pmensaje->rest,strlen(pmensaje->recog));            
+          
           return;//rechazar
         }
         else
@@ -996,6 +1000,19 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
   }
 }
 
+
+void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
+{
+  GSList* cosa;
+  for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
+  {
+    PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
+    //printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
+    write(ptuberia->outEstEntrada,envio,BUFFER_MAXIMO);
+
+  }
+}
+
 int
 main(int argc, char *argv[]) {
   GSList *node, *trans, *automatas, *estadito, *automata,*cosa;
@@ -1008,7 +1025,6 @@ main(int argc, char *argv[]) {
   GSList *pipesAutomatas;/*tuberias por cada automata para comuncarse 
   con sisctrl y saber los estados de entrada*/
   char estadoLeido[1];
-  char cadenaEntrada[BUFFER_MAXIMO];
   setsid();
 
   //printf("soy sisctrl y mi pid es: %d y grupo: %d\n", getpid(),getpgrp());
@@ -1122,36 +1138,37 @@ main(int argc, char *argv[]) {
       i++;
       //sleep(1);
     }
+      while(1)
+  {
+    //scanf("%s",cadenaEntrada);
+    //char * cadenaEntrad = "{ cmd: send, msg: aabbccaa }";
+    printf("Ingrese el mensaje\n");
+    char* cadenaEntrada;
+    cadenaEntrada = (char*)malloc(BUFFER_MAXIMO);
+    read(0,cadenaEntrada,BUFFER_MAXIMO);
 
-   // while(1)
+    pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
+    parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
+
+    if(strcmp(pmensajeUsusario->cmd,"stop") == 0)
+      break;
+    else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
     {
-          printf("Bienvenido a uatomatas al piso\n" );
-          printf("Ingrese el mensaje\n");
-          //scanf("%s",cadenaEntrada);
-          //char * cadenaEntrad = "{ cmd: send, msg: aabbccaa }";
-          read(0,cadenaEntrada,BUFFER_MAXIMO);
-          pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
-          parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
-
-          if(strcmp(pmensajeUsusario->cmd, "send") == 0)
-          {
-            char* envio[BUFFER_MAXIMO];
-            sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
-            //int desc=obtenerDescriptor(estadoLeido,pipes,pautomata->states);
-            int desc=obtenerDescriptor("A",pipes,pautomata->states);          
-            write(desc,envio,BUFFER_MAXIMO);
-            //write(desc,"{ recog: afgdf, rest: ccaaaaaabbcc }",BUFFER_MAXIMO);
-          } 
-          else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
-          {
-            if(strcmp(pmensajeUsusario->msg, "") == 0)
-              imprimirInfoAutomatasTodos(automatas, pmensajeUsusario->msg);
-            else
-              imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
-          }
-
+      char* envio[BUFFER_MAXIMO];
+      sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
+      escribirEnEstadosEntrada(pipesAutomatas, envio);
+    } 
+    else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
+    {
+      if(strcmp(pmensajeUsusario->msg, "") == 0)
+        imprimirInfoAutomatasTodos(automatas, pmensajeUsusario->msg);
+      else
+        imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
     }
+
   }
+  }
+
 
   //imprimirCosas(pipesAutomatas);
   /*me toco poner esta funcion no se

@@ -804,7 +804,7 @@ int obtenerDescriptor(char* estado,int** pipes,GSList* states)
   //pues nunca se ingresara un estado incorrecto
 }
 
-void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal)
+void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal, int outAsisCtrl)
 {
   //printf("aut: %s estad: %s  final: %d entrada: %d\n",nomAut ,nombreEst,esFinal,in);
   /*int i;
@@ -822,6 +822,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
   char buffer[BUFFER_MAXIMO];//aqui decia char* bufre[bumaximo] meimagino que eso es lo que se usa para acumular
   int tamLeido;
   PmensajeEntreAutomatas_t pmensaje;
+  char impresion[BUFFER_MAXIMO];
 
   setpgid(0,getpgid(getppid()));
   //printf("soy estado %s padre: %d y grupo es: %d\n", nombreEst,getppid(), getpgrp());
@@ -853,7 +854,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       break;
     else if (tamLeido > 0) 
     {
-        //printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,buffer);
+        printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,buffer);
 
         pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
         parserMensajeEntreAutomatas(pmensaje,buffer);
@@ -864,13 +865,15 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           if(esFinal)
           {
             //printf("cadena aceptada\n");
-            printf("msgtype: accept\n accept:\n automata: %s\n msg: %s\n",nomAut, pmensaje->recog);
+          sprintf(impresion,"{ codterm: 0, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
+            dprintf(outAsisCtrl,impresion);
             return;//aceptar
           }
           else
           {
             //printf("cadena rechazada por no acabar en final\n");
-            printf("msgtype: reject\n reject:\n automata: %s\n msg: %s%s\n pos: %d\n",nomAut, pmensaje->recog,pmensaje->rest,strlen(pmensaje->recog));            
+          sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
+            dprintf(outAsisCtrl,impresion);            
             return;//rechazar
           }
         }
@@ -880,23 +883,21 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
         if(strcmp(result,"0")==0)
         {
           //printf("cadena rechazada por no encontrar transicion\n");
-          printf("msgtype: reject\n reject:\n automata: %s\n msg: %s%s\n pos: %d\n",nomAut, pmensaje->recog,pmensaje->rest,strlen(pmensaje->recog));            
-          
+          //sprintf(impresion,"msgtype: reject\n reject:\n automata: %s\n msg: %s%s\n pos: %d\n",nomAut, pmensaje->recog,pmensaje->rest,strlen(pmensaje->recog)+1);            
+          sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
+          dprintf(outAsisCtrl,impresion);
           return;//rechazar
         }
         else
         {
           int desc=obtenerDescriptor(result,pipes,states);
 
-        
-          char impresion[BUFFER_MAXIMO];
           //esta funcion es la puteria, aunque la encontre despues de darme comntra
           //los muros por mas de 3 horas tratando de concatenar eso con el write
           sprintf(impresion,"{ recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
-          write(desc, impresion, BUFFER_MAXIMO);
+          //write(desc, impresion, BUFFER_MAXIMO);
+          dprintf(desc, impresion);
           //dprintf(desc,"{ recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
-          //printf("el  parse { recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
-
         }
       }
     }
@@ -948,14 +949,41 @@ int esFinal(char* nombreEst, GSList* finales)
   return resp;
 
 }
-
+/*
+void* leerTuberiasHilos(int tuberia)
+{
+  read(tuberia)
+  mutex();
+  printf lo que sea;
+  mutex();
+}
+*/
 void imprimirCosas(GSList* pipesAutomatas)
 {
-  GSList* cosa;
+  GSList* cosa = NULL;
+  char lecturaAutomas[BUFFER_MAXIMO];
+
   for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
   {
+
+    int tamLeido;
     PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
-    printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
+    
+    while(tamLeido = read(ptuberia->inAsisCtrl,lecturaAutomas,BUFFER_MAXIMO))
+    {
+      if (tamLeido == 0)
+      {
+       break;
+      }
+      else if (tamLeido == -1) 
+        break;
+      else if (tamLeido > 0) 
+      {
+      printf("nomaut: %s outent %d insis %d outsis %d\n %s\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl, lecturaAutomas);
+      //thread(leertuberias(insis));
+      break;
+      }
+    }
   }
 }
 
@@ -1004,11 +1032,13 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
 void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
 {
   GSList* cosa;
+
   for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
   {
     PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
     //printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
-    write(ptuberia->outEstEntrada,envio,BUFFER_MAXIMO);
+    //write(ptuberia->outEstEntrada,envio,BUFFER_MAXIMO);
+    dprintf(ptuberia->outEstEntrada,envio);
 
   }
 }
@@ -1019,7 +1049,7 @@ main(int argc, char *argv[]) {
   //PmensajeEntreAutomatas_t pmensaje;
   //PmensajeAutsisCtrl_t pmensaje;
   PmensajeDeUsuario_t pmensajeUsusario;
-  Pautomata_t pautomata;
+  //Pautomata_t pautomata;
   PtuberiasAutomata_t ptuberias;
   int **pipes;//lista de arreglos por estado para cada automata
   GSList *pipesAutomatas;/*tuberias por cada automata para comuncarse 
@@ -1126,7 +1156,7 @@ main(int argc, char *argv[]) {
       int pid = fork();
       if(pid == 0)
       {
-        procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo);
+        procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo, ptuberias->outAsisCtrl);
         return;
       }
 
@@ -1138,39 +1168,37 @@ main(int argc, char *argv[]) {
       i++;
       //sleep(1);
     }
-      while(1)
-  {
-    //scanf("%s",cadenaEntrada);
-    //char * cadenaEntrad = "{ cmd: send, msg: aabbccaa }";
-    printf("Ingrese el mensaje\n");
-    char* cadenaEntrada;
-    cadenaEntrada = (char*)malloc(BUFFER_MAXIMO);
-    read(0,cadenaEntrada,BUFFER_MAXIMO);
-
-    pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
-    parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
-
-    if(strcmp(pmensajeUsusario->cmd,"stop") == 0)
-      break;
-    else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
+  }
+    //while(1)
     {
-      char* envio[BUFFER_MAXIMO];
-      sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
-      escribirEnEstadosEntrada(pipesAutomatas, envio);
-    } 
-    else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
-    {
-      if(strcmp(pmensajeUsusario->msg, "") == 0)
-        imprimirInfoAutomatasTodos(automatas, pmensajeUsusario->msg);
-      else
-        imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
+      //scanf("%s",cadenaEntrada);
+      //char * cadenaEntrad = "{ cmd: send, msg: aabbccaa }";
+     // printf("Ingrese el mensaje\n");
+      char* cadenaEntrada;
+      cadenaEntrada = (char*)malloc(BUFFER_MAXIMO);
+      read(0,cadenaEntrada,BUFFER_MAXIMO);
+
+      pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
+      parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
+
+      if(strcmp(pmensajeUsusario->cmd,"stop") == 0)
+        printf("esto se salio del ciclo guey\n");//break;
+      else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
+      {
+        char* envio[BUFFER_MAXIMO];
+        sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
+        escribirEnEstadosEntrada(pipesAutomatas, envio);
+      } 
+      else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
+      {
+        if(strcmp(pmensajeUsusario->msg, "") == 0)
+          imprimirInfoAutomatasTodos(automatas, pmensajeUsusario->msg);
+        else
+          imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
+      }
+      sleep(1);
     }
-
-  }
-  }
-
-
-  //imprimirCosas(pipesAutomatas);
+  imprimirCosas(pipesAutomatas);
   /*me toco poner esta funcion no se
   por que poniendo el for aca nunca paso de segmentation fault -_-*/
  // kill(getpgrp(),1);

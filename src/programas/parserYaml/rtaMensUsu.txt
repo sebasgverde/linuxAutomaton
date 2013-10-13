@@ -1,5 +1,5 @@
 ingrese entrada
-{ cmd: send, msg: "aabbbbbbaabb" }
+{ cmd: send, msg: "aabbbbaabbcc" }
 { cmd: info, msg: "One" }
 { cmd: info, msg: "Two" }
 { cmd: info, msg: "" }

@@ -3,7 +3,7 @@
   alpha: [a,b,c]
   states: [A,B,C]
   start: A
-  final: [A,C]
+  final: [C]
   delta:
    - node: A
      trans:

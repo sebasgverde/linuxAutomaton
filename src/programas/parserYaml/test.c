@@ -604,13 +604,8 @@ void parserMensajeEntreAutomatas(PmensajeEntreAutomatas_t pmensaje, char* fh)
 //------------parser automatas a sisctrl-------------------
 
 
-void parserMensajeAutomatasSisCtrl(PmensajeAutsisCtrl_t pmensaje)
+void parserMensajeAutomatasSisCtrl(PmensajeAutsisCtrl_t pmensaje,char* fh)
 {
-  char fh [BUFFER_MAXIMO];
-  
-
-  fprintf(stdout,"ingrese entrada\n","%s");
-  int tama = read(0,fh,BUFFER_MAXIMO);
 
   /* Initialize parser */
   if(!yaml_parser_initialize(&parser))
@@ -619,7 +614,7 @@ void parserMensajeAutomatasSisCtrl(PmensajeAutsisCtrl_t pmensaje)
     fputs("Failed to open file!\n", stderr);
 
   /* Set input file */
-  yaml_parser_set_input_string(&parser, (unsigned char *)fh, tama);
+  yaml_parser_set_input_string(&parser, (unsigned char *)fh, strlen(fh));
 
   /* START new code */
   do {
@@ -962,6 +957,7 @@ void imprimirCosas(GSList* pipesAutomatas)
 {
   GSList* cosa = NULL;
   char lecturaAutomas[BUFFER_MAXIMO];
+  PmensajeAutsisCtrl_t pmensajeAut;
 
   for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
   {
@@ -979,7 +975,23 @@ void imprimirCosas(GSList* pipesAutomatas)
         break;
       else if (tamLeido > 0) 
       {
-      printf("nomaut: %s outent %d insis %d outsis %d\n %s\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl, lecturaAutomas);
+      pmensajeAut = (PmensajeAutsisCtrl_t)malloc(sizeof(MensajeAutsisCtrl_t));
+      //parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
+      parserMensajeAutomatasSisCtrl(pmensajeAut, lecturaAutomas);
+
+        //printf("nomaut: %s outent %d insis %d outsis %d\n %s\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl, lecturaAutomas);
+        //printf("codigo: %d recoocido %s resatante %s\n", pmensajeAut->codterm,pmensajeAut->recog,pmensajeAut->rest);           
+      if(pmensajeAut->codterm == 0)
+       {
+        printf("-msgtype: accept\n accept:\n  -automata: %s\n   msg: %s%s\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,strlen(pmensajeAut->recog)+1);            
+
+       }
+      else if(pmensajeAut->codterm == 1)
+      {
+        printf("-msgtype: reject\n reject:\n  -automata: %s\n   msg: %s%s\n   pos: %d\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,strlen(pmensajeAut->recog)+1);            
+      }
+      else if(pmensajeAut->codterm == 2)
+      {}
       //thread(leertuberias(insis));
       break;
       }
@@ -992,15 +1004,17 @@ void imprimirInfoAutomatasTodos(GSList* automatas, char* msg)
   GSList *cosa,*automata,*estadito;
   if(strcmp(msg,"")==0)
   {
+    printf("-msgtype: info\n info:\n");
     for(automata = automatas; automata; automata = automata->next)
     {
       //cada automata
       Pautomata_t pautomata= (Pautomata_t)automata->data;
-      printf("automata %s\n ppid: %d\n", pautomata->nombre,getpid());
+
+      printf("  -automata %s\n   ppid: %d\n", pautomata->nombre,getpid());
       for(estadito = pautomata->estados;estadito;estadito = estadito->next)
       {
         Pestado_t pestadito = (Pestado_t) estadito->data;
-        printf("node %s\n pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
+        printf("   -nodo: %s\n    pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
 
       }
     }
@@ -1017,11 +1031,11 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
     //cada automata
     if(strcmp(msg,pautomata->nombre)==0)
     {
-      printf("automata %s\n ppid: %d\n", pautomata->nombre,getpid());
+      printf("-msgtype: info\n info:\n  -automata %s\n   ppid: %d\n", pautomata->nombre,getpid());
       for(estadito = pautomata->estados;estadito;estadito = estadito->next)
       {
         Pestado_t pestadito = (Pestado_t) estadito->data;
-        printf("node %s\n pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
+        printf("   -nodo: %s\n    pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
 
       }
     }
@@ -1169,7 +1183,7 @@ main(int argc, char *argv[]) {
       //sleep(1);
     }
   }
-    //while(1)
+    while(1)
     {
       //scanf("%s",cadenaEntrada);
       //char * cadenaEntrad = "{ cmd: send, msg: aabbccaa }";
@@ -1182,12 +1196,15 @@ main(int argc, char *argv[]) {
       parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
 
       if(strcmp(pmensajeUsusario->cmd,"stop") == 0)
-        printf("esto se salio del ciclo guey\n");//break;
+        //printf("esto se salio del ciclo guey\n");
+        // kill(getpgrp(),1);
+        break;
       else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
       {
         char* envio[BUFFER_MAXIMO];
         sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
         escribirEnEstadosEntrada(pipesAutomatas, envio);
+        imprimirCosas(pipesAutomatas);
       } 
       else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
       {
@@ -1196,12 +1213,8 @@ main(int argc, char *argv[]) {
         else
           imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
       }
-      sleep(1);
+      //sleep(1);
     }
-  imprimirCosas(pipesAutomatas);
-  /*me toco poner esta funcion no se
-  por que poniendo el for aca nunca paso de segmentation fault -_-*/
- // kill(getpgrp(),1);
 
   return 0;
 }

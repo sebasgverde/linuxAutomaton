@@ -750,7 +750,7 @@ int obtenerDescriptor(char* estado,int** pipes,GSList* states)
 
 void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal, int outAsisCtrl)
 {
-  //printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
+  printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
 
   char* buffer;//aqui decia char* bufre[bumaximo] meimagino que eso es lo que se usa para acumular
   int tamLeido;
@@ -805,13 +805,20 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           {
           sprintf(impresion,"{ codterm: 0, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
             dprintf(outAsisCtrl,impresion);
-            return;//aceptar
+            //return;//aceptar
+            /*el problema que tenia de que despues de la primer ves se me
+            quedaba congelado eran estos return, despues de correr un primer send
+            abri otra terminal y mostre los procesos, vi que en dos decia
+            <defunct> resulta que eran zombies, estaban terminados y al mirar
+            el id vi que eran los que le escribian a sisctrl, estos fucking return
+            estaban terminando el proceso, ¿por que los puse dentro de un ifthenelse?
+            nunca lo sabre*/
           }
           else
           {
             sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
             dprintf(outAsisCtrl,impresion);            
-            return;//rechazar
+            //return;//rechazar
           }
         }
       else
@@ -821,7 +828,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
         {
           sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
           dprintf(outAsisCtrl,impresion);
-          return;//rechazar
+          //return;//rechazar
         }
         else
         {
@@ -1008,7 +1015,7 @@ main(int argc, char *argv[]) {
 
     int numeroEstados = numeroEstadosAutomata(pautomata->states);
     pipes = (int**)malloc(numeroEstados * sizeof(int*));//numero de filas
-    printf("numero de estados: %d\n", numeroEstados);
+    //printf("numero de estados: %d\n", numeroEstados);
     int i;
     for(i = 0; i < numeroEstados; i++)
     {

@@ -1,3 +1,6 @@
+
+
+
 /*
 Pointers to struct[edit]
 
@@ -34,78 +37,48 @@ event.type
 #define BUFFER_MAXIMO 256
 
 
-char* readinput(FILE* inp)
-{
-   char* input = NULL;
-   char tempbuf[BUFFER_MAXIMO];
-   size_t inputlen = 0, templen = 0;
-   do {
-       fgets(tempbuf, BUFFER_MAXIMO, inp);
-       templen = strlen(tempbuf);
-       inputlen += templen;
-       input = realloc(input, inputlen+1);
-       strcat(input, tempbuf);
-    } while (templen==BUFFER_MAXIMO-1 && tempbuf[BUFFER_MAXIMO-2]!='\n');
-    input[strlen(input)-1] = '\0';
-    return input;
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+char *inputString(FILE* fp, size_t size){
+//The size is extended by the input with the value of the provisional
+    char *str;
+    int ch;
+    size_t len = 0;
+    str = realloc(NULL, sizeof(char)*size);//size is start size
+    if(!str)return str;
+    while(EOF!=(ch=fgetc(fp)) && ch != '\n'){
+        str[len++]=ch;
+        if(len==size){
+            str = realloc(str, sizeof(char)*(size+=16));
+            if(!str)return str;
+        }
+    }
+    str[len++]='\0';
+
+    return realloc(str, sizeof(char)*len);
 }
 
 
-
-int leerEntradaDeDescriptor(char* cadenaEntrada, int inputDescr)
+int leerEntradaDeDescriptor(int inputDescr,int outDesc)
 {
     int tam = 0;
-  /*
-  char apuntador[BUFFER_MAXIMO];
-  char cadenaEntrada[BUFFER_MAXIMO];
-  //int tam = read(inputDescr, apuntador, BUFFER_MAXIMO);
 
-tam = scanf("%s", cadenaEntrada);
-printf("el tamaño leido es %d\n", tam);
-printf("%s\n", cadenaEntrada);
-*/
-  int pipeline[2];
-  pipe(pipeline);
-
-
-  dprintf(pipeline[1],"%s\n", cadenaEntrada);
-
-    FILE *file = fdopen(pipeline[0],"r");
-
-  char* apuntador = readinput(file);
-
-printf("lo del archivo : \n\n\n\n\n\n%s\n", apuntador);
-  /*
-
-  printf("%s\n", apuntador);
-  if(tam <= 0)
-    return tam;
-
-  cadenaEntrada = (char*)malloc(sizeof(char) * (tam+1));  
-  strncpy(cadenaEntrada,(char*) apuntador,tam-2);
-  cadenaEntrada[tam] = '\0';
-    printf("%s\n", cadenaEntrada);
-*/
-
-  return tam;
-
-
-
-  /*
-    printf("%s", apuntador);
-    cadenaEntrada = (char*)malloc(sizeof(char) * (tam+1);
-
-    while(apuntador[tam-1] != '}' && apuntador[tam-1] != '\n')
+  FILE *file = fdopen(inputDescr,"r");
+    while(1)
     {
-      tam = read(inputDescr, apuntador, 6);
-      printf("%s", apuntador);
-    }*/
-    /*char * apuntador =(char *) malloc(sizeof(char) *
-       (event.data.scalar.length + 1));
-    strcpy(apuntador,(char*) event.data.scalar.value);
-    apuntador[event.data.scalar.length] = '\0';
-    return apuntador;
-    */
+
+      char* apuntador = inputString(file,10);
+      if(strlen(apuntador)>0)
+      {
+      printf("soy %d lo del archivo : \n\n%s\n",getpid(), apuntador);
+      //printf("tamaño %d\n", strlen(apuntador));      }
+      free(apuntador);
+    }
+  
+  return tam;
 }
 
 
@@ -114,15 +87,28 @@ printf("lo del archivo : \n\n\n\n\n\n%s\n", apuntador);
 int
 main(int argc, char *argv[]) {
 
-      char* result = readinput(stdin);
-    printf("And the result is [%s]\n", result);
-  int tam = leerEntradaDeDescriptor(result, 0);
 
-    free(result);
+  int pipeline[2];
+  pipe(pipeline);
+if(fork()==0){
+  int tam = leerEntradaDeDescriptor(pipeline[0],pipeline[1]);
+}
+else
+{
+  while(1)
+  {
+    char *m;
 
+    printf("soy %d input string : ",getpid());
+    m = inputString(stdin, 10);
+    //printf("%s\n", m);
+    dprintf(pipeline[1],"%s\n", m);
 
-  //printf("%s\n", a);
-  //printf("tam %d\n", tam);
+    //printf("tamaño %d\n", strlen(m));
 
-  return 0;
+    free(m);
+    sleep(1);
+  }
+}
+    return 0;
 }

@@ -1,12 +1,24 @@
 ingrese entrada
-{ cmd: send, msg: "ccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabcaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbbbbbbccaaaabbbb" }
-{ cmd: send, msg: "aabbccbbaaaccababac" } 
+
+
+{ recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac}
+
+{ cmd: send, msg: "aabbccbbaaaccababac" }
+{ recog: , rest: "aaaabbbbbbbbccaaaabbbbbbbbcca" }
+{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac }
+{ recog: , rest: abababababababababababababababababababababababababababababababababababababababababababababababababababababababc }
+{ recog: , rest: "aaaabb" }
 { cmd: info, msg: "One" }
 { cmd: info, msg: "Two" }
 { cmd: info, msg: "" }
 { cmd: stop, msg: "" }
 asfasgggggggggggggggasingfafgadfg
 adfgadfjgnadkfjgsjngbsfgndfhn}
+
+abababababababaababababa,
+abababababababaababababa,
+aaaaaaaaaaaaaaaaaaaaaaaa, este no fue memory tales sino defunct
+aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbb, defunct
 
 STREAM START
 <b>Start Document</b>

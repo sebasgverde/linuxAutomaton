@@ -6,12 +6,18 @@ ingrese entrada
 { cmd: send, msg: "aabbac" }
 { cmd: send, msg: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac" }
 { cmd: send, msg: "abababababababababababababababababababababababababababababababababababababababababababababababababababababababc" }
+{ cmd: send, msg: "aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaacaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac" }
+
 
 { recog: , rest: "aabbccbbaaaccaba" }
 
 
-{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac }
+{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaac } 
+-con una sola a de mas malloc memory corruption, con este numero de aes lo puedo ingresar todo el dia y no pasa nada
+-tambien probe una cadena que rechazaba en la segunda posicion, seguida de 3000 caracteres y tampoco moria, esto me dice que la culpa es de la reescritura DENTRO de los automatas, ahi es que se mueren en cierto'punto
+
 { recog: , rest: abababababababababababababababababababababababababababababababababababababababababababababababababababababababc }
+
 { recog: , rest: "aaaabb" }
 { cmd: info, msg: "One" }
 { cmd: info, msg: "Two" }

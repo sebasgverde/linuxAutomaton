@@ -808,6 +808,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
   setpgid(0,getpgid(getppid()));
   char impresion[BUFFER_MAXIMO];
   //printf("soy estado %s padre: %d y grupo es: %d\n", nombreEst,getppid(), getpgrp());
+      int cont=0;
 
   FILE *file = fdopen(in,"r");
   printf("ya abri\n");
@@ -818,7 +819,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
     //tamLeido = read(in, buffer, BUFFER_MAXIMO);
 
 
-      char* apuntador = inputString(file,10);
+      char* apuntador = inputString(file,BUFFER_MAXIMO);
       tamLeido = strlen(apuntador);
       //printf("ya lei y tam es: %d\n", tamLeido);
 
@@ -835,9 +836,9 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
 
       pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
-      parserMensajeEntreAutomatas(pmensaje,apuntador);
+      //parserMensajeEntreAutomatas(pmensaje,apuntador);
       //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
-      
+      /*
      if(strcmp(pmensaje->rest,"")==0) 
       {
         if(esFinal)
@@ -854,7 +855,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           el id vi que eran los que le escribian a sisctrl, estos fucking return
           estaban terminando el proceso, ¿por que los puse dentro de un ifthenelse?
           nunca lo sabre*/
-        }
+        /*}
         else
         {
           //sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
@@ -862,7 +863,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           //dprintf(outAsisCtrl,impresion);            
           //return;//rechazar
         }
-      }
+      /*}
       else
       {
         char* result = evaluarCadena(pmensaje->recog, pmensaje->rest, transiciones);
@@ -886,11 +887,15 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           //write(desc, impresion, BUFFER_MAXIMO);
           //dprintf(desc, impresion);
         }
-      }
-      
-      //int desc=obtenerDescriptor("B",pipes,states);
+      }*/
+      int desc=obtenerDescriptor("A",pipes,states);
       //dprintf(desc,"{ recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
-
+      printf("%d\n", cont);
+      if(cont < 2000)
+      {cont++; dprintf(desc,"%s\n",apuntador);}
+    else
+      return;
+    //printf("%s\n", apuntador);
       free(apuntador);
     }
   }
@@ -1176,16 +1181,18 @@ main(int argc, char *argv[]) {
       //sleep(1);
     }
   }*/
-
-    while(1)
+    int i;
+   // for(i=0; i<100;i++)
     {
-      char* cadenaEntrada = "{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaac }";
+      char* cadenaEntrada = "{ recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaacaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac }";
       //char* cadenaEntrada;
       //cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
       escribirEnEstadosEntrada(pipesAutomatas, cadenaEntrada);
-      imprimirCosas(pipesAutomatas);
+      //imprimirCosas(pipesAutomatas);
+      scanf(cadenaEntrada);
 
     }
+       // kill(getpgrp()*(-1),9);
 
   return 0;
 }

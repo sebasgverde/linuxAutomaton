@@ -1,6 +1,5 @@
 
 
-
 /*
 Pointers to struct[edit]
 
@@ -1137,28 +1136,22 @@ main(int argc, char *argv[]) {
       // printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberias->nombreAut,ptuberias->outEstEntrada,ptuberias->inAsisCtrl,ptuberias->outAsisCtrl,);
       i++;
     }
-  }
-
-
-  /*
+  }  
   while(1)
   { 
 
     int tamLeido;
     //char cadenaEntrada[BUFFER_MAXIMO];
     char* cadenaEntrada = NULL;
-    cadenaEntrada = (char*)malloc(sizeof(char) * BUFFER_MAXIMO);
+    /*cadenaEntrada = (char*)malloc(sizeof(char) * BUFFER_MAXIMO);
 
-    tamLeido = read(0,cadenaEntrada,BUFFER_MAXIMO);
-    cadenaEntrada[tamLeido] = '\0';
+    fgets(stdin,cadenaEntrada,BUFFER_MAXIMO);
+    cadenaEntrada[strlen(cadenaEntrada)] = '\0';*/
+    cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
+    tamLeido= strlen(cadenaEntrada);
 
-    if (tamLeido == 0)
-    {
-     break;
-    }
-    else if (tamLeido == -1) 
-      break;
-    else if (tamLeido > 0) 
+
+    if (tamLeido > 0) 
     {
       cadenaEntrada[strlen(cadenaEntrada)] = '\0';
       pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
@@ -1189,20 +1182,6 @@ main(int argc, char *argv[]) {
       }
       //sleep(1);
     }
-  }*/
-
-  while(1)
-  {
-    char* envio;//="{ recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac }";
-    printf("ingrese algo porfa\n");
-    envio = inputString(stdin, 10);
-    //char* envio = NULL;
-    //envio = (char*)malloc(BUFFER_MAXIMO);
-    escribirEnEstadosEntrada(pipesAutomatas, envio);
-
-    imprimirCosas(pipesAutomatas);
-    free(envio);
-    sleep(1);
   }
   return 0;
 }

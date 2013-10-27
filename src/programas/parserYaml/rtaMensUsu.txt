@@ -3,9 +3,14 @@ ingrese entrada
 
 { recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac}
 
-{ cmd: send, msg: "aabbccbbaaaccababac" }
-{ recog: , rest: "aaaabbbbbbbbccaaaabbbbbbbbcca" }
-{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac }
+{ cmd: send, msg: "aabbac" }
+{ cmd: send, msg: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac" }
+{ cmd: send, msg: "abababababababababababababababababababababababababababababababababababababababababababababababababababababababc" }
+
+{ recog: , rest: "aabbccbbaaaccaba" }
+
+
+{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac }
 { recog: , rest: abababababababababababababababababababababababababababababababababababababababababababababababababababababababc }
 { recog: , rest: "aaaabb" }
 { cmd: info, msg: "One" }

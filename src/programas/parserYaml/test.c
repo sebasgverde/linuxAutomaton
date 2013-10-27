@@ -823,14 +823,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       //printf("ya lei y tam es: %d\n", tamLeido);
 
 
-    if (tamLeido == 0)
-    {
-  printf("aut: %s estado %s no lei nada\n",nomAut,nombreEst);
-     break;
-    }
-    else if (tamLeido == -1) 
-      break;
-    else if (tamLeido > 0) 
+    if (tamLeido > 0) 
     {
 
       //printf("soy %d lo del archivo : \n\n%s\n",getpid(), apuntador);
@@ -1075,7 +1068,6 @@ main(int argc, char *argv[]) {
   con sisctrl y saber los estados de entrada*/
   char estadoLeido[1];
   setsid();
-
   //printf("soy sisctrl y mi pid es: %d y grupo: %d\n", getpid(),getpgrp());
 
   /*if (argc != 2) {
@@ -1137,17 +1129,18 @@ main(int argc, char *argv[]) {
       i++;
     }
   }  
-  while(1)
+
+  /*while(1)
   { 
 
     int tamLeido;
     //char cadenaEntrada[BUFFER_MAXIMO];
-    char* cadenaEntrada = NULL;
+    char* cadenaEntrada= NULL;
     /*cadenaEntrada = (char*)malloc(sizeof(char) * BUFFER_MAXIMO);
 
     fgets(stdin,cadenaEntrada,BUFFER_MAXIMO);
     cadenaEntrada[strlen(cadenaEntrada)] = '\0';*/
-    cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
+    /*cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
     tamLeido= strlen(cadenaEntrada);
 
 
@@ -1182,6 +1175,17 @@ main(int argc, char *argv[]) {
       }
       //sleep(1);
     }
-  }
+  }*/
+
+    while(1)
+    {
+      char* cadenaEntrada = "{ recog: , rest: aaaaaaaaaaaaaaaaaaaaaaaac }";
+      //char* cadenaEntrada;
+      //cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
+      escribirEnEstadosEntrada(pipesAutomatas, cadenaEntrada);
+      imprimirCosas(pipesAutomatas);
+
+    }
+
   return 0;
 }

@@ -836,8 +836,8 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
 
       pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
-      //parserMensajeEntreAutomatas(pmensaje,apuntador);
-      //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
+      parserMensajeEntreAutomatas(pmensaje,apuntador);
+      printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
       /*
      if(strcmp(pmensaje->rest,"")==0) 
       {
@@ -888,15 +888,27 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           //dprintf(desc, impresion);
         }
       }*/
-      int desc=obtenerDescriptor("A",pipes,states);
-      //dprintf(desc,"{ recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
+      int desc;//=obtenerDescriptor("A",pipes,states);
       printf("%d\n", cont);
-      if(cont < 2000)
-      {cont++; dprintf(desc,"%s\n",apuntador);}
+      //if(cont < 2000)
+      if(strcmp(pmensaje->rest,"")!=0)
+      {
+        cont++;
+        if(strcmp(nombreEst,"A")==0)
+        {
+          desc=obtenerDescriptor("B",pipes,states);
+        dprintf(desc,"{ recog: %sa, rest: %s }\n", pmensaje->recog,pmensaje->rest+1);
+        }
+        else
+        {      
+          desc=obtenerDescriptor("A",pipes,states);
+          dprintf(desc,"{ recog: %sa, rest: %s }\n", pmensaje->recog,pmensaje->rest+1);
+        }
+      }
     else
       return;
     //printf("%s\n", apuntador);
-      free(apuntador);
+    free(apuntador);
     }
   }
 

@@ -1055,7 +1055,10 @@ void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
     PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
     //printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
     //write(ptuberia->outEstEntrada,envio,BUFFER_MAXIMO);
-    dprintf(ptuberia->outEstEntrada,"%s\n",envio);
+    //dprintf(ptuberia->outEstEntrada,"%s\n",envio);
+    dprintf(ptuberia->outEstEntrada,"{ recog: , rest: %s }\n",envio);
+    //cuando cambie esto aqui volvi a olvidar el \n -_- ese es el enter loco!!!
+
 
   }
 }
@@ -1150,7 +1153,7 @@ main(int argc, char *argv[]) {
     }
   }  
 
-  /*while(1)
+  while(1)
   { 
 
     int tamLeido;
@@ -1160,13 +1163,12 @@ main(int argc, char *argv[]) {
 
     fgets(stdin,cadenaEntrada,BUFFER_MAXIMO);
     cadenaEntrada[strlen(cadenaEntrada)] = '\0';*/
-    /*cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
+    cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
     tamLeido= strlen(cadenaEntrada);
 
 
     if (tamLeido > 0) 
     {
-      cadenaEntrada[strlen(cadenaEntrada)] = '\0';
       pmensajeUsusario = (PmensajeDeUsuario_t)malloc(sizeof(MensajeDeUsuario_t));
       parserMensajesDeUsuario(pmensajeUsusario, cadenaEntrada);
 
@@ -1179,11 +1181,11 @@ main(int argc, char *argv[]) {
       }
       else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
       {
-        char envio[BUFFER_MAXIMO];
+        //char envio[BUFFER_MAXIMO];
         //char* envio = NULL;
         //envio = (char*)malloc(BUFFER_MAXIMO);
-        sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
-        escribirEnEstadosEntrada(pipesAutomatas, envio);
+        //sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
+        escribirEnEstadosEntrada(pipesAutomatas, pmensajeUsusario->msg);
         imprimirCosas(pipesAutomatas);
       } 
       else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
@@ -1195,8 +1197,8 @@ main(int argc, char *argv[]) {
       }
       //sleep(1);
     }
-  }*/
-    int i;
+  }
+   /* int i;
     for(i=0; i<100;i++)
     //while(1)
     {
@@ -1207,7 +1209,7 @@ main(int argc, char *argv[]) {
       escribirEnEstadosEntrada(pipesAutomatas, cadenaEntrada);
       imprimirCosas(pipesAutomatas);
       //scanf(cadenaEntrada);
-    }
+    }*/
        // kill(getpgrp()*(-1),9);
 
   return 0;

@@ -91,6 +91,7 @@ struct MensajeEntreAutomatas
 {
   char* recog;
   char* rest;
+  char* tokenActual;
 };
 typedef struct MensajeEntreAutomatas MensajeEntreAutomatas_t;
 typedef struct MensajeEntreAutomatas * PmensajeEntreAutomatas_t;
@@ -142,10 +143,6 @@ yaml_event_t event;
 
 
 
-
-
-
-#define BUFFER_MAXIMO 256
 
 
 
@@ -709,17 +706,23 @@ procesos estados
 
 */
 
-char* evaluarCadena(char* recog,char* cadena, GSList* transiciones)
+char* evaluarCadena(PmensajeEntreAutomatas_t pmensaje, GSList* transiciones)
 {
   GSList* node;
 
   for(node=transiciones;node;node=node->next)
   {
     Ptransicion_t tran = (Ptransicion_t) node->data;
-    if(strncmp(tran->entrada,cadena,strlen(tran->entrada))==0)
+    if(strncmp(tran->entrada,pmensaje->rest,strlen(tran->entrada))==0)
     {
 
-      int a = strlen(cadena)-strlen(tran->entrada)+1;
+  char * token =(char *) malloc(sizeof(char) *
+     strlen(tran->entrada)+1);
+  strcpy(token,tran->entrada);
+  token[strlen(tran->entrada)] = '\0';
+
+  pmensaje->tokenActual = token;
+      /*int a = strlen(cadena)-strlen(tran->entrada)+1;
       char* nuevoRest = (char*)malloc(a);
       strncpy(nuevoRest,cadena+strlen(tran->entrada),a-1);
       nuevoRest[a-1]='\0';
@@ -728,7 +731,7 @@ char* evaluarCadena(char* recog,char* cadena, GSList* transiciones)
 
       nuevoRest = (char*)malloc(strlen(recog)+strlen(tran->entrada));
       sprintf(nuevoRest,"%s%s",recog,tran->entrada);
-      strcpy(recog,nuevoRest);
+      strcpy(recog,nuevoRest);*/
 
       return(tran->siguiente);
     }
@@ -833,12 +836,12 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
 
       //buffer[strlen(buffer)] = '\0';
 
-      printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
+      //printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
 
       pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
       parserMensajeEntreAutomatas(pmensaje,apuntador);
-      printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
-      /*
+      //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
+      
      if(strcmp(pmensaje->rest,"")==0) 
       {
         if(esFinal)
@@ -855,7 +858,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           el id vi que eran los que le escribian a sisctrl, estos fucking return
           estaban terminando el proceso, ¿por que los puse dentro de un ifthenelse?
           nunca lo sabre*/
-        /*}
+        }
         else
         {
           //sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
@@ -863,10 +866,10 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           //dprintf(outAsisCtrl,impresion);            
           //return;//rechazar
         }
-      /*}
+      }
       else
       {
-        char* result = evaluarCadena(pmensaje->recog, pmensaje->rest, transiciones);
+        char* result = evaluarCadena(pmensaje, transiciones);
         if(strcmp(result,"0")==0)
         {
           //sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
@@ -882,13 +885,13 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           //esta funcion es la puteria, aunque la encontre despues de darme comntra
           //los muros por mas de 3 horas tratando de concatenar eso con el write
           //sprintf(impresion,"{ recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
-          dprintf(desc,"{ recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
+          dprintf(desc,"{ recog: %s%s, rest: %s }\n", pmensaje->recog,pmensaje->tokenActual, pmensaje->rest+(strlen(pmensaje->tokenActual)));
 
           //write(desc, impresion, BUFFER_MAXIMO);
           //dprintf(desc, impresion);
         }
-      }*/
-      int desc;//=obtenerDescriptor("A",pipes,states);
+      }
+     /* int desc;//=obtenerDescriptor("A",pipes,states);
       printf("%d\n", cont);
       //if(cont < 2000)
       if(strcmp(pmensaje->rest,"")!=0)
@@ -906,7 +909,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
         }
       }
     else
-      return;
+      return;*/
     //printf("%s\n", apuntador);
     free(apuntador);
     }
@@ -1194,15 +1197,16 @@ main(int argc, char *argv[]) {
     }
   }*/
     int i;
-   // for(i=0; i<100;i++)
+    for(i=0; i<100;i++)
+    //while(1)
     {
-      char* cadenaEntrada = "{ recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaacaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaac }";
+      printf("i es %d\n", i );
+      char* cadenaEntrada = "{ recog: , rest: aabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaaaabbbbbbbbbbbbbbaaaaaaaaaabbaabbaa }";
       //char* cadenaEntrada;
       //cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
       escribirEnEstadosEntrada(pipesAutomatas, cadenaEntrada);
-      //imprimirCosas(pipesAutomatas);
-      scanf(cadenaEntrada);
-
+      imprimirCosas(pipesAutomatas);
+      //scanf(cadenaEntrada);
     }
        // kill(getpgrp()*(-1),9);
 

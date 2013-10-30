@@ -2,8 +2,8 @@
 all: test
 
 INVOICECFLAGS=`pkg-config --cflags glib-2.0`
-INVOICECFLAGS += -g
-INVOICELIBS=`pkg-config --libs glib-2.0` -lyaml
+INVOICECFLAGS += -g 
+INVOICELIBS=`pkg-config --libs glib-2.0` -lyaml -pthread
 
 test: test.o
 	$(CC) -g -o $@ $< $(INVOICELIBS)

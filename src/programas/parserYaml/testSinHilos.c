@@ -31,8 +31,6 @@ event.type
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
-#include <pthread.h>
-#include <semaphore.h>
 
 
 #define BUFFER_MAXIMO 256
@@ -945,17 +943,6 @@ int numeroEstadosAutomata(GSList* states)
   return numero;
 }
 
-int numeroDeAutomatas(GSList* automatas)
-{
-  GSList* node;
-  int numero = 0;
-  for(node = automatas;node;node = node->next)//me esat
-  {
-    numero++;
-  }
-  return numero;
-}
-
 //cuando empiezo a lanzar los procesos uso esto para saber si el estado
 //es final
 int esFinal(char* nombreEst, GSList* finales)
@@ -981,43 +968,36 @@ void* leerTuberiasHilos(int tuberia)
 }
 */
 
-sem_t escritorEnAutomatas;
-sem_t impresor;
-int numeroAutomatas;
-
 void imprimirError(char* lugar, char* causa)
 {
   printf("-msgtype: error\n error:\n  -where: %s\n   cause: %s\n", lugar, causa);
 }
 
-void * lectorImpresorAutomatas(void *arg)
+void imprimirCosas(GSList* pipesAutomatas)
 {
-
-  PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)(intptr_t)arg;
-
-  FILE *file = fdopen(ptuberia->inAsisCtrl,"r");
+  GSList* cosa = NULL;
   PmensajeAutsisCtrl_t pmensajeAut;
 
+  for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
+  {
+    PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t) cosa->data;
 
-
+  FILE *file = fdopen(ptuberia->inAsisCtrl,"r");
   while(1)
   {
-    char* lecturaAutomas = inputString(file,10);
-    int tamLeido = strlen(lecturaAutomas);
-    //printf("ya lei y tam es: %d\n", tamLeido);
+      char* lecturaAutomas = inputString(file,10);
+      int tamLeido = strlen(lecturaAutomas);
+      //printf("ya lei y tam es: %d\n", tamLeido);
 
-    /*if (tamLeido == 0)
-    {
-     break;
-    }
-    else if (tamLeido == -1) 
-      break;
-    else */if (tamLeido > 0) 
-    {
-      sem_wait(&impresor);
-
-      numeroAutomatas--;
-      pmensajeAut = (PmensajeAutsisCtrl_t)malloc(sizeof(MensajeAutsisCtrl_t));
+      if (tamLeido == 0)
+      {
+       break;
+      }
+      else if (tamLeido == -1) 
+        break;
+      else if (tamLeido > 0) 
+      {
+        pmensajeAut = (PmensajeAutsisCtrl_t)malloc(sizeof(MensajeAutsisCtrl_t));
       if(parserMensajeAutomatasSisCtrl(pmensajeAut, lecturaAutomas))
       {
         if(pmensajeAut->codterm == 0)
@@ -1040,29 +1020,9 @@ void * lectorImpresorAutomatas(void *arg)
         sprintf(lugar, "Pid %d", getpid());
         imprimirError(lugar, "Fallo al parsear mensaje de automata en sysCtrl, formato YAML invalido");
       }
-
-      if(numeroAutomatas == 0)
-        sem_post(&escritorEnAutomatas);
-      else
-        sem_post(&impresor);
-
-
+      break;
+      }
     }
-  }
-}
-
-
-void iniciarHilosImpresion(GSList* pipesAutomatas)
-{
-  GSList* cosa = NULL;
-
-  for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
-  {
-    pthread_t t;
-
-    PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t) cosa->data;
-
-    pthread_create(&t, NULL,lectorImpresorAutomatas, ptuberia); 
   }
 }
 
@@ -1217,11 +1177,6 @@ main(int argc, char *argv[]) {
     }
   }  
 
-  sem_init(&escritorEnAutomatas,0,1);
-  sem_init(&impresor,0,0);
-
-  iniciarHilosImpresion(pipesAutomatas);
-
   while(1)
   { 
 
@@ -1252,12 +1207,7 @@ main(int argc, char *argv[]) {
           //envio = (char*)malloc(BUFFER_MAXIMO);
           //sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
           escribirEnEstadosEntrada(pipesAutomatas, pmensajeUsusario->msg);
-          //imprimirCosas(pipesAutomatas);
-          numeroAutomatas = numeroDeAutomatas(automatas);
-          sem_post(&impresor);
-          sem_wait(&escritorEnAutomatas);
-
-
+          imprimirCosas(pipesAutomatas);
         } 
         else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
         {

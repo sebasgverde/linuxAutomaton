@@ -818,7 +818,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       int cont=0;
 
   FILE *file = fdopen(in,"r");
-  printf("ya abri\n");
+  //printf("ya abri\n");
   while(1)
   {
     //buffer = (char*)malloc(sizeof(char) * BUFFER_MAXIMO);

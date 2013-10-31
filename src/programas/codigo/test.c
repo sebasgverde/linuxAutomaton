@@ -1,5 +1,4 @@
 
-
 /*
 Pointers to struct[edit]
 
@@ -267,7 +266,7 @@ GSList* parserArchivoAutomatas(const char* filename) {
  
   FILE *infile;
   int cont = TRUE;
-  infile = fopen("automatas.yaml", "r");
+  infile = fopen(filename, "r");
 
   state_t state = start;
 
@@ -846,8 +845,9 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
 
       pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
       if(parserMensajeEntreAutomatas(pmensaje,apuntador))
-      //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
       {
+        //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
+
         if(strcmp(pmensaje->rest,"")==0) 
         {
           if(esFinal)
@@ -1157,12 +1157,12 @@ main(int argc, char *argv[]) {
   setsid();
   //printf("soy sisctrl y mi pid es: %d y grupo: %d\n", getpid(),getpgrp());
 
-  /*if (argc != 2) {
+  if (argc != 2) {
     usage(argv[0]);
-  }*/
+  }
 
-  automatas = parserArchivoAutomatas("automatas.yaml");//argv[1]"");
-  //automatas = parserArchivoAutomatas(argv[1]);
+  //automatas = parserArchivoAutomatas("automatas.yaml");//argv[1]"");
+  automatas = parserArchivoAutomatas(argv[1]);
   
   for(automata = automatas; automata; automata = automata->next)
   {
@@ -1266,12 +1266,12 @@ main(int argc, char *argv[]) {
           else
             imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
         }
-
-
-        /*else
+        else
         {
-          printf("no se reconocio ningun comando\n");
-        }*/
+          char* lugar;
+          sprintf(lugar, "Pid %d", getpid());
+          imprimirError(lugar, "no se encontro ningun comando en mensaje de usuario");
+        }
 
 
         //sleep(1);

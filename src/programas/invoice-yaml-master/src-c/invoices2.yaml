@@ -1,0 +1,9 @@
+- invoice: 110
+  client: "Juan Francisco Cardona"
+  items:
+     - item: 1100
+       unitvalue: 1000.00
+       units: 1
+     - item: 1200
+       unitvalue: 200.10
+       units: 100

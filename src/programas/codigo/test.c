@@ -1,4 +1,3 @@
-
 /*
 Pointers to struct[edit]
 

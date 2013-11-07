@@ -1265,12 +1265,12 @@ main(int argc, char *argv[]) {
           else
             imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
         }
-        else
+        /*else
         {
           char* lugar;
           sprintf(lugar, "Pid %d", getpid());
           imprimirError(lugar, "no se encontro ningun comando en mensaje de usuario");
-        }
+        }este mensaje me causa un core dump al poner un mensaje sin }*/
 
 
         //sleep(1);

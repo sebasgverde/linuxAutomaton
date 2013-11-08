@@ -899,7 +899,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       }
       else
       {
-        dprintf(outAsisCtrl,"{ codterm: 2, recog: Pid %d , rest: problema al parsear mensaje en estado %s de automata %s }\n",getpid(), nombreEst,nomAut);            
+        dprintf(outAsisCtrl,"{ codterm: 2, recog: %d , rest: problema al parsear mensaje en estado %s de automata %s }\n",getpid(), nombreEst,nomAut);            
       }
      /* int desc;//=obtenerDescriptor("A",pipes,states);
       printf("%d\n", cont);
@@ -984,9 +984,9 @@ sem_t escritorEnAutomatas;
 sem_t impresor;
 int numeroAutomatas;
 
-void imprimirError(char* lugar, char* causa)
+void imprimirError(int lugar, char* causa)
 {
-  printf("-msgtype: error\n error:\n  -where: %s\n   cause: %s\n", lugar, causa);
+  printf("-msgtype: error\n error:\n  -where: Pid %d\n   cause: %s\n", lugar, causa);
 }
 
 void * lectorImpresorAutomatas(void *arg)
@@ -1025,19 +1025,19 @@ void * lectorImpresorAutomatas(void *arg)
         }
         else if(pmensajeAut->codterm == 1)
         {
-          printf("-msgtype: reject\n reject:\n  -automata: %s\n   msg: %s%s\n   pos: %d\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,strlen(pmensajeAut->recog)+1);            
+          printf("-msgtype: reject\n reject:\n  -automata: %s\n   msg: %s%s\n   pos: %d\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,(int)strlen(pmensajeAut->recog)+1);            
         }
         else if(pmensajeAut->codterm == 2)
         {
-          imprimirError(pmensajeAut->recog,pmensajeAut->rest);
+          imprimirError(atoi(pmensajeAut->recog),pmensajeAut->rest);
         }
         //thread(leertuberias(insis));
       }
       else
       {
-        char* lugar;
-        sprintf(lugar, "Pid %d", getpid());
-        imprimirError(lugar, "Fallo al parsear mensaje de automata en sysCtrl, formato YAML invalido");
+        //char* lugar;
+        //sprintf(lugar, "Pid %d", getpid());
+        imprimirError((int)getpid(), "Fallo al parsear mensaje de automata en sysCtrl, formato YAML invalido");
       }
 
       if(numeroAutomatas == 0)
@@ -1147,10 +1147,10 @@ int leerEntradaDeDescriptor(char* cadenaEntrada, int inputDescr)
 int
 main(int argc, char *argv[]) {
   GSList *node, *trans, *automatas, *estadito, *automata,*cosa;
-  PmensajeDeUsuario_t pmensajeUsusario;
-  PtuberiasAutomata_t ptuberias;
+  PmensajeDeUsuario_t pmensajeUsusario = NULL;
+  PtuberiasAutomata_t ptuberias = NULL;
   int **pipes;//lista de arreglos por estado para cada automata
-  GSList *pipesAutomatas;/*tuberias por cada automata para comuncarse 
+  GSList *pipesAutomatas = NULL;/*tuberias por cada automata para comuncarse 
   con sisctrl y saber los estados de entrada*/
   char estadoLeido[1];
   setsid();
@@ -1160,7 +1160,7 @@ main(int argc, char *argv[]) {
     usage(argv[0]);
   }
 
-  //automatas = parserArchivoAutomatas("automatas.yaml");//argv[1]"");
+  //automatas = parserArchivoAutomatas("pruebaAut4.yaml");//argv[1]"");
   automatas = parserArchivoAutomatas(argv[1]);
   
   for(automata = automatas; automata; automata = automata->next)
@@ -1265,21 +1265,22 @@ main(int argc, char *argv[]) {
           else
             imprimirInfoAutomataEspecifico(automatas, pmensajeUsusario->msg);              
         }
-        /*else
+        else
         {
-          char* lugar;
-          sprintf(lugar, "Pid %d", getpid());
-          imprimirError(lugar, "no se encontro ningun comando en mensaje de usuario");
-        }este mensaje me causa un core dump al poner un mensaje sin }*/
+          //char* lugar;
+          //sprintf(lugar, "Pid %d", getpid());
+          imprimirError((int)getpid(), "no se encontro ningun comando en mensaje de usuario");
+        }
+        /*este mensaje me causa un core dump al poner un mensaje sin }*/
 
 
         //sleep(1);
       }
       else
       {
-        char* lugar;
-        sprintf(lugar, "Pid %d", getpid());
-        imprimirError(lugar, "Fallo al parsear mensaje de usuario en sysCtrl, formato YAML invalido");
+        //char* lugar;
+        //sprintf(lugar, "Pid %d", (int)getpid());
+        imprimirError((int)getpid(), "Fallo al parsear mensaje de usuario en sysCtrl, formato YAML invalido");
       }
     }
   }

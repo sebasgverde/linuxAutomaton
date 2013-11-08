@@ -27,8 +27,8 @@ pal 5
 
 
 
-{ cmd: send, msg: "abababababababababababababababababababababababab" }
-{ cmd: send, msg: "bbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+{ cmd: send, msg: "ababababababababababababababababababababababababc" }
+{ cmd: send, msg: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
 
 { recog: , rest: "aabbccbbaaaccaba" }
 

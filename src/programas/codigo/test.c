@@ -814,7 +814,7 @@ char *inputString(FILE* fp, size_t size){
 
 void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal, int outAsisCtrl)
 {
-  printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
+  //printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
 
   int tamLeido;
   PmensajeEntreAutomatas_t pmensaje;
@@ -1114,12 +1114,49 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
   }
 }
 
-void cerrarTuberiasNoUsadas()
-{}
+void cerrarTuberiasNoUsadas(char* nomAut, GSList* estados,Pestado_t estadoActual,int** pipes)
+{
+  GSList* estadito = NULL;
+  GSList* transicion = NULL;
+
+  char* nombreEst = estadoActual->nomNodo;
+  close(1);//si se desea que el estado imprima mensajes se debe dejar abierta
+  close(0);
+
+  int i=0;
+  for(estadito = estados;estadito;estadito = estadito->next)
+  {
+    Pestado_t pestadito = (Pestado_t) estadito->data;
+
+    int bandera = 0;
+    for(transicion = estadoActual->transiciones;transicion;transicion=transicion->next )
+    {
+      Ptransicion_t ptransicion = (Ptransicion_t)transicion->data;
+      if(strcmp(ptransicion->siguiente,pestadito->nomNodo)==0)
+      {
+          bandera = 1;
+          //printf("aut %s si hay trancicion de %s a %s\n",nomAut,nombreEst,pestadito->nomNodo );
+          break;
+      }
+    }
+
+    if(bandera = 0)
+      close(pipes[i][1]);
+
+
+    if(strcmp(pestadito->nomNodo, nombreEst) != 0)
+    {
+      printf("%s %s\n",nombreEst, pestadito->nomNodo);
+      close(pipes[i][0]);
+    }
+
+    i++;
+  }
+}
 
 void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
 {
-  GSList* cosa;
+  GSList* cosa = NULL;
 
   for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
   {
@@ -1216,6 +1253,7 @@ main(int argc, char *argv[]) {
       if(pid == 0)
       {
         //setpgrp();
+        cerrarTuberiasNoUsadas(pautomata->nombre, pautomata->estados,pestadito,pipes);
         procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo, ptuberias->outAsisCtrl);
         return;
       }

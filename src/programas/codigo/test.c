@@ -267,6 +267,12 @@ GSList* parserArchivoAutomatas(const char* filename) {
   int cont = TRUE;
   infile = fopen(filename, "r");
 
+  if(infile == NULL)
+  {
+    printf("no se pudo abrir archivo\n");
+    return NULL;
+  }
+
   state_t state = start;
 
   GSList* listaAutomatas = NULL;
@@ -1108,6 +1114,8 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
   }
 }
 
+void cerrarTuberiasNoUsadas()
+{}
 
 void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
 {
@@ -1162,6 +1170,9 @@ main(int argc, char *argv[]) {
 
   //automatas = parserArchivoAutomatas("pruebaAut4.yaml");//argv[1]"");
   automatas = parserArchivoAutomatas(argv[1]);
+
+  if(automatas == NULL)
+    return 0;
   
   for(automata = automatas; automata; automata = automata->next)
   {

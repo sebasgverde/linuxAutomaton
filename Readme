@@ -1,14 +1,40 @@
-paths de archivos
+Objetivo
+la siguiente practica muestra como se pueden comunicar multiples procesos usando la idea de un conjunto de automatas, para los cuales cada estado esto es un procesos y usa tuberias para comunicarse, se parte de un archivo de configuracion en formato YAML
 
-maquina virtual
-/Dropbox/EAFIT$ cd /home/estudiante/Dropbox/EAFIT/Sistemas\ operativos/practica/practicaOperativosSebastianGarciaValencia/src/programas/
+Requisitos
+el programa se probo bajo 2 distribuciones de linux
 
-fedora
-cd /home/sebastian/Dropbox/EAFIT/Sistemas\ operativos/practica/practicaOperativosSebastianGarciaValencia/src/programas/
+en fedora 16:
+
+GCC >= 4.7.2.
+YAML >=  0.2
+Glib >= 2.0
+make >= 3.82
+
+en ubuntu 13.04:
+
+GCC >= 4.7.3.
+YAML >=  0.2
+Glib >= 2.0
+make >= 3.81
+
+
+bibliotecas utilizadas
+
+yaml.h
+stdio.h
+stdlib.h
+glib.h
+string.h
+signal.h
+unistd.h
+string.h
+pthread.h
+semaphore.h
 
 
 
-Tutoriales
+Tutoriales que fueron utiles
 
 http://www.csc.villanova.edu/~mdamian/threads/posixsem.html
 

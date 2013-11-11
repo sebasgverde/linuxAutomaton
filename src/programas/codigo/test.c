@@ -814,7 +814,7 @@ char *inputString(FILE* fp, size_t size){
 
 void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal, int outAsisCtrl)
 {
-  //printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
+  printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
 
   int tamLeido;
   PmensajeEntreAutomatas_t pmensaje;
@@ -1120,7 +1120,7 @@ void cerrarTuberiasNoUsadas(char* nomAut, GSList* estados,Pestado_t estadoActual
   GSList* transicion = NULL;
 
   char* nombreEst = estadoActual->nomNodo;
-  close(1);//si se desea que el estado imprima mensajes se debe dejar abierta
+  //close(1);//si se desea que el estado imprima mensajes se debe dejar abierta
   close(0);
 
   int i=0;

@@ -726,22 +726,12 @@ char* evaluarCadena(PmensajeEntreAutomatas_t pmensaje, GSList* transiciones)
     if(strncmp(tran->entrada,pmensaje->rest,strlen(tran->entrada))==0)
     {
 
-  char * token =(char *) malloc(sizeof(char) *
-     strlen(tran->entrada)+1);
-  strcpy(token,tran->entrada);
-  token[strlen(tran->entrada)] = '\0';
+      char * token =(char *) malloc(sizeof(char) *
+       strlen(tran->entrada)+1);
+      strcpy(token,tran->entrada);
+      token[strlen(tran->entrada)] = '\0';
 
-  pmensaje->tokenActual = token;
-      /*int a = strlen(cadena)-strlen(tran->entrada)+1;
-      char* nuevoRest = (char*)malloc(a);
-      strncpy(nuevoRest,cadena+strlen(tran->entrada),a-1);
-      nuevoRest[a-1]='\0';
-      //cadena = (char*)malloc(strlen(nuevoRest));
-      strcpy(cadena,nuevoRest);
-
-      nuevoRest = (char*)malloc(strlen(recog)+strlen(tran->entrada));
-      sprintf(nuevoRest,"%s%s",recog,tran->entrada);
-      strcpy(recog,nuevoRest);*/
+      pmensaje->tokenActual = token;
 
       return(tran->siguiente);
     }
@@ -814,53 +804,32 @@ char *inputString(FILE* fp, size_t size){
 
 void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* states, GSList* transiciones, int numEst, int esFinal, int outAsisCtrl)
 {
-  printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
+  //printf("aut: %s estado %s pid: %d\n",nomAut,nombreEst, getpid() );
 
   int tamLeido;
   PmensajeEntreAutomatas_t pmensaje;
   setpgid(0,getpgid(getppid()));
-  //char impresion[BUFFER_MAXIMO];
-  //printf("soy estado %s padre: %d y grupo es: %d\n", nombreEst,getppid(), getpgrp());
-      int cont=0;
+  int cont=0;
 
   FILE *file = fdopen(in,"r");
-  //printf("ya abri\n");
   while(1)
   {
-    //buffer = (char*)malloc(sizeof(char) * BUFFER_MAXIMO);
-
-    //tamLeido = read(in, buffer, BUFFER_MAXIMO);
-
-
-      char* apuntador = inputString(file,BUFFER_MAXIMO);
-      tamLeido = strlen(apuntador);
-      //printf("ya lei y tam es: %d\n", tamLeido);
-
+    char* apuntador = inputString(file,BUFFER_MAXIMO);
+    tamLeido = strlen(apuntador);
 
     if (tamLeido > 0) 
     {
 
-      //printf("soy %d lo del archivo : \n\n%s\n",getpid(), apuntador);
-      //printf("tamaño %d\n", strlen(apuntador));      }
-      
-
-      //buffer[strlen(buffer)] = '\0';
-
-      //printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
+     //printf("aut: %s estad: %s  %s\n",nomAut ,nombreEst,apuntador);
 
       pmensaje = (PmensajeEntreAutomatas_t) malloc(sizeof(MensajeDeUsuario_t));
       if(parserMensajeEntreAutomatas(pmensaje,apuntador))
       {
-        //printf("recog:%s rest: %s\n",pmensaje->recog,pmensaje->rest);
-
         if(strcmp(pmensaje->rest,"")==0) 
         {
           if(esFinal)
           {
-          //sprintf(impresion,"{ codterm: 0, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
           dprintf(outAsisCtrl,"{ codterm: 0, recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
-
-            //dprintf(outAsisCtrl,impresion);
             //return;//aceptar
             /*el problema que tenia de que despues de la primer ves se me
             quedaba congelado eran estos return, despues de correr un primer send
@@ -872,10 +841,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           }
           else
           {
-            //sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
-            dprintf(outAsisCtrl,"{ codterm: 1, recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);            
-            //dprintf(outAsisCtrl,impresion);            
-            //return;//rechazar
+            dprintf(outAsisCtrl,"{ codterm: 1, recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
           }
         }
         else
@@ -883,11 +849,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
           char* result = evaluarCadena(pmensaje, transiciones);
           if(strcmp(result,"0")==0)
           {
-            //sprintf(impresion,"{ codterm: 1, recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
             dprintf(outAsisCtrl,"{ codterm: 1, recog: %s, rest: %s }\n", pmensaje->recog,pmensaje->rest);
-
-            //dprintf(outAsisCtrl,impresion);
-            //return;//rechazar
           }
           else
           {
@@ -895,11 +857,8 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
 
             //esta funcion es la puteria, aunque la encontre despues de darme comntra
             //los muros por mas de 3 horas tratando de concatenar eso con el write
-            //sprintf(impresion,"{ recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest);
+            //sprintf(impresion,"{ recog: %s, rest: %s }", pmensaje->recog,pmensaje->rest); //la puteria y al final no la use ...
             dprintf(desc,"{ recog: %s%s, rest: %s }\n", pmensaje->recog,pmensaje->tokenActual, pmensaje->rest+(strlen(pmensaje->tokenActual)));
-
-            //write(desc, impresion, BUFFER_MAXIMO);
-            //dprintf(desc, impresion);
           }
         }
       }
@@ -907,26 +866,7 @@ void procesoEstado(char* nomAut,char* nombreEst,int in, int** pipes, GSList* sta
       {
         dprintf(outAsisCtrl,"{ codterm: 2, recog: %d , rest: problema al parsear mensaje en estado %s de automata %s }\n",getpid(), nombreEst,nomAut);            
       }
-     /* int desc;//=obtenerDescriptor("A",pipes,states);
-      printf("%d\n", cont);
-      //if(cont < 2000)
-      if(strcmp(pmensaje->rest,"")!=0)
-      {
-        cont++;
-        if(strcmp(nombreEst,"A")==0)
-        {
-          desc=obtenerDescriptor("B",pipes,states);
-        dprintf(desc,"{ recog: %sa, rest: %s }\n", pmensaje->recog,pmensaje->rest+1);
-        }
-        else
-        {      
-          desc=obtenerDescriptor("A",pipes,states);
-          dprintf(desc,"{ recog: %sa, rest: %s }\n", pmensaje->recog,pmensaje->rest+1);
-        }
-      }
-    else
-      return;*/
-    //printf("%s\n", apuntador);
+
     free(apuntador);
     }
   }
@@ -976,19 +916,12 @@ int esFinal(char* nombreEst, GSList* finales)
   return resp;
 
 }
-/*
-void* leerTuberiasHilos(int tuberia)
-{
-  read(tuberia)
-  mutex();
-  printf lo que sea;
-  mutex();
-}
-*/
+
 
 sem_t escritorEnAutomatas;
 sem_t impresor;
 int numeroAutomatas;
+
 
 void imprimirError(int lugar, char* causa)
 {
@@ -1003,21 +936,12 @@ void * lectorImpresorAutomatas(void *arg)
   FILE *file = fdopen(ptuberia->inAsisCtrl,"r");
   PmensajeAutsisCtrl_t pmensajeAut;
 
-
-
   while(1)
   {
     char* lecturaAutomas = inputString(file,10);
     int tamLeido = strlen(lecturaAutomas);
-    //printf("ya lei y tam es: %d\n", tamLeido);
-
-    /*if (tamLeido == 0)
-    {
-     break;
-    }
-    else if (tamLeido == -1) 
-      break;
-    else */if (tamLeido > 0) 
+    
+    if (tamLeido > 0) 
     {
       sem_wait(&impresor);
 
@@ -1037,12 +961,9 @@ void * lectorImpresorAutomatas(void *arg)
         {
           imprimirError(atoi(pmensajeAut->recog),pmensajeAut->rest);
         }
-        //thread(leertuberias(insis));
       }
       else
       {
-        //char* lugar;
-        //sprintf(lugar, "Pid %d", getpid());
         imprimirError((int)getpid(), "Fallo al parsear mensaje de automata en sysCtrl, formato YAML invalido");
       }
 
@@ -1050,8 +971,6 @@ void * lectorImpresorAutomatas(void *arg)
         sem_post(&escritorEnAutomatas);
       else
         sem_post(&impresor);
-
-
     }
   }
 }
@@ -1120,7 +1039,7 @@ void cerrarTuberiasNoUsadas(char* nomAut, GSList* estados,Pestado_t estadoActual
   GSList* transicion = NULL;
 
   char* nombreEst = estadoActual->nomNodo;
-  //close(1);//si se desea que el estado imprima mensajes se debe dejar abierta
+  close(1);//si se desea que el estado imprima mensajes se debe dejar abierta
   close(0);
 
   int i=0;
@@ -1146,7 +1065,7 @@ void cerrarTuberiasNoUsadas(char* nomAut, GSList* estados,Pestado_t estadoActual
 
     if(strcmp(pestadito->nomNodo, nombreEst) != 0)
     {
-      printf("%s %s\n",nombreEst, pestadito->nomNodo);
+      //printf("%s %s\n",nombreEst, pestadito->nomNodo);
       close(pipes[i][0]);
     }
 
@@ -1161,9 +1080,7 @@ void escribirEnEstadosEntrada(GSList* pipesAutomatas, char* envio)
   for(cosa = pipesAutomatas; cosa; cosa = cosa->next)
   {
     PtuberiasAutomata_t ptuberia = (PtuberiasAutomata_t)cosa->data;
-    //printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberia->nombreAut,ptuberia->outEstEntrada,ptuberia->inAsisCtrl,ptuberia->outAsisCtrl);
-    //write(ptuberia->outEstEntrada,envio,BUFFER_MAXIMO);
-    //dprintf(ptuberia->outEstEntrada,"%s\n",envio);
+
     dprintf(ptuberia->outEstEntrada,"{ recog: , rest: %s }\n",envio);
     //cuando cambie esto aqui volvi a olvidar el \n -_- ese es el enter loco!!!
 
@@ -1183,7 +1100,7 @@ int leerEntradaDeDescriptor(char* cadenaEntrada, int inputDescr)
   cadenaEntrada = (char*)malloc(sizeof(char) * (tam+1));  
   strncpy(cadenaEntrada,(char*) apuntador,tam);
   cadenaEntrada[tam] = '\0';
-    printf("%s\n", cadenaEntrada);
+  printf("%s\n", cadenaEntrada);
 
 
   return tam;
@@ -1191,13 +1108,12 @@ int leerEntradaDeDescriptor(char* cadenaEntrada, int inputDescr)
 
 int
 main(int argc, char *argv[]) {
-  GSList *node, *trans, *automatas, *estadito, *automata,*cosa;
+  GSList *node = NULL, *trans = NULL, *automatas = NULL, *estadito = NULL, *automata = NULL,*cosa = NULL;
   PmensajeDeUsuario_t pmensajeUsusario = NULL;
   PtuberiasAutomata_t ptuberias = NULL;
   int **pipes;//lista de arreglos por estado para cada automata
   GSList *pipesAutomatas = NULL;/*tuberias por cada automata para comuncarse 
   con sisctrl y saber los estados de entrada*/
-  char estadoLeido[1];
   setsid();
   //printf("soy sisctrl y mi pid es: %d y grupo: %d\n", getpid(),getpgrp());
 
@@ -1238,7 +1154,6 @@ main(int argc, char *argv[]) {
     pipe(tuberiaSisctrl);
     ptuberias->inAsisCtrl = tuberiaSisctrl[0];
     ptuberias->outAsisCtrl = tuberiaSisctrl[1];
-    //printf("en la lista critica %s\n", ptuberias->nombreAut);
 
     i=0;
     for(estadito = pautomata->estados;estadito;estadito = estadito->next)
@@ -1252,7 +1167,6 @@ main(int argc, char *argv[]) {
       int pid = fork();
       if(pid == 0)
       {
-        //setpgrp();
         cerrarTuberiasNoUsadas(pautomata->nombre, pautomata->estados,pestadito,pipes);
         procesoEstado(pautomata->nombre,pestadito->nomNodo,pipes[i][0],pipes, pautomata->states, pestadito->transiciones,numeroEstados, finalONo, ptuberias->outAsisCtrl);
         return;
@@ -1260,7 +1174,7 @@ main(int argc, char *argv[]) {
 
       pestadito -> PidProceso = pid;
       //printf("pid aut %s es %d\n",pestadito->nomNodo,pestadito->PidProceso );
-      // printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberias->nombreAut,ptuberias->outEstEntrada,ptuberias->inAsisCtrl,ptuberias->outAsisCtrl,);
+      //printf("nomaut: %s outent %d insis %d outsis %d\n", ptuberias->nombreAut,ptuberias->outEstEntrada,ptuberias->inAsisCtrl,ptuberias->outAsisCtrl,);
       i++;
     }
   }  
@@ -1274,7 +1188,6 @@ main(int argc, char *argv[]) {
   { 
 
     int tamLeido;
-    //char cadenaEntrada[BUFFER_MAXIMO];
     char* cadenaEntrada= NULL;
 
     cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
@@ -1288,24 +1201,15 @@ main(int argc, char *argv[]) {
       {
         if(strcmp(pmensajeUsusario->cmd,"stop") == 0)
         {
-          //printf("esto se salio del ciclo guey\n");
           kill(getpgrp()*(-1),9);
-          //break;
           return;
         }
         else if(strcmp(pmensajeUsusario->cmd, "send") == 0)
         {
-          //char envio[BUFFER_MAXIMO];
-          //char* envio = NULL;
-          //envio = (char*)malloc(BUFFER_MAXIMO);
-          //sprintf(envio,"{ recog: , rest: %s }",pmensajeUsusario->msg);
           escribirEnEstadosEntrada(pipesAutomatas, pmensajeUsusario->msg);
-          //imprimirCosas(pipesAutomatas);
           numeroAutomatas = numeroDeAutomatas(automatas);
           sem_post(&impresor);
           sem_wait(&escritorEnAutomatas);
-
-
         } 
         else if(strcmp(pmensajeUsusario->cmd, "info") == 0)
         {
@@ -1316,37 +1220,15 @@ main(int argc, char *argv[]) {
         }
         else
         {
-          //char* lugar;
-          //sprintf(lugar, "Pid %d", getpid());
           imprimirError((int)getpid(), "no se encontro ningun comando en mensaje de usuario");
         }
-        /*este mensaje me causa un core dump al poner un mensaje sin }*/
-
-
-        //sleep(1);
       }
       else
       {
-        //char* lugar;
-        //sprintf(lugar, "Pid %d", (int)getpid());
         imprimirError((int)getpid(), "Fallo al parsear mensaje de usuario en sysCtrl, formato YAML invalido");
       }
     }
   }
-    /*
-   int i;
-    //for(i=0; i<100;i++)
-    //while(1)
-    {
-      printf("i es %d\n", i );
-      char* cadenaEntrada = "{aaab";
-      //char* cadenaEntrada;
-      //cadenaEntrada = inputString(stdin, BUFFER_MAXIMO);
-      escribirEnEstadosEntrada(pipesAutomatas, cadenaEntrada);
-      imprimirCosas(pipesAutomatas);
-      scanf(cadenaEntrada);
-    }*/
-       // kill(getpgrp()*(-1),9);
 
   return 0;
 }

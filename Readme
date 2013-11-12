@@ -1,5 +1,7 @@
 Objetivo
-la siguiente practica muestra como se pueden comunicar multiples procesos usando la idea de un conjunto de automatas, para los cuales cada estado esto es un procesos y usa tuberias para comunicarse, se parte de un archivo de configuracion en formato YAML
+la siguiente practica muestra como se pueden comunicar multiples procesos usando la idea de un conjunto de automatas, para 
+los cuales cada estado esto es un procesos y usa tuberias para comunicarse, se parte de un archivo de configuracion en 
+formato YAML
 
 Requisitos
 el programa se probo bajo 2 distribuciones de linux

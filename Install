@@ -1,18 +1,25 @@
-pasos para instalar
+Pasos para instalar
 
 1. Ubicarse inicialmente en la carpeta 
 practicaoperativossebastiangarciavalencia
 
-2. Ingresar el comando
+2. Ingresar el comando para compilar
+
 $ make
 
 3. El ejecutable quedara ubicado en la carpeta src, para ejecutar el programa ingresar
+
 $ ./sisctrl <archivoYAML>
 
-donde archivoYAML es el archivo de configuracion con los automatas, en la carpeta archivosYaml estan ubicados algunos ejemplos de archivo. Un ejemplo de ejecucion es el siguiente
+donde archivoYAML es el archivo de configuracion con los automatas, en la carpeta archivosYaml estan ubicados algunos ejemplos 
+de archivo. Un ejemplo de ejecucion es el siguiente
 
 $ ./src/sisctrl src/archivosYaml/automatas.yaml 
 
 o estando dentro de la carpeta src
 
 $ ./sisctrl archivosYaml/automatas.yaml 
+
+4. Para limpiar la carpeta de ejecutables y dejarla como al principio ejecutar
+
+$ make clean

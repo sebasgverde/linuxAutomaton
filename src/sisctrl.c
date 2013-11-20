@@ -196,9 +196,40 @@ GSList* listaDeStrings()
 
 void asignarAutomata(Pautomata_t pautom)
 {
-  GSList* cosa;//para imprimir alpha, states y final(debug)
+  GSList* cosa = NULL;//para imprimir alpha, states y final(debug)
+  while(strcmp(event.data.scalar.value,"delta")!=0)
+  {
+    if(strcmp(event.data.scalar.value,"automata")==0)
+    {
+      siguienteEvento(&parser,&event);//automata valor
+      pautom->nombre = mallocAString();
+    }
+    else if(strcmp(event.data.scalar.value,"alpha")==0)
+    {
+      siguienteEvento(&parser,&event);//valor
+      pautom -> alpha = listaDeStrings();
+    }
+    else if(strcmp(event.data.scalar.value,"states")==0)
+    {
+      siguienteEvento(&parser,&event);//valor estado
+      pautom -> states = listaDeStrings();
+    }
+    else if(strcmp(event.data.scalar.value,"start")==0)
+    {
+      siguienteEvento(&parser,&event);//start valor
+      pautom->inicial = mallocAString();
+    }
+    else if(strcmp(event.data.scalar.value,"final")==0)
+    {
+      siguienteEvento(&parser,&event);//valor finales
+      pautom -> final = listaDeStrings();
+    }
+
+    siguienteEvento(&parser,&event);
+  }
 
 
+/*
   siguienteEvento(&parser,&event);//automata valor
   pautom->nombre = mallocAString();
 
@@ -235,17 +266,14 @@ void asignarAutomata(Pautomata_t pautom)
     pautom -> final = listaDeStrings();
 
   siguienteEvento(&parser,&event);//delta
-
+*/
 }
 
 void asignarEstados(Pestado_t pestado)
 {
     siguienteEvento(&parser,&event);//node valor
     pestado->nomNodo = mallocAString();
-
     siguienteEvento(&parser,&event);//trans
-
-
 }
 
 void asiganarTransiciones(Ptransicion_t ptrans)

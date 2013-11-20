@@ -925,7 +925,7 @@ int numeroAutomatas;
 
 void imprimirError(int lugar, char* causa)
 {
-  printf("-msgtype: error\n error:\n  -where: Pid %d\n   cause: %s\n", lugar, causa);
+  printf("- msgtype: error\n  error:\n  - where: \"Pid: %d\"\n    cause: \"%s\"\n", lugar, causa);
 }
 
 void * lectorImpresorAutomatas(void *arg)
@@ -951,11 +951,11 @@ void * lectorImpresorAutomatas(void *arg)
       {
         if(pmensajeAut->codterm == 0)
         {
-          printf("-msgtype: accept\n accept:\n  -automata: %s\n   msg: %s%s\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,strlen(pmensajeAut->recog)+1);            
+          printf("- msgtype: accept\n  accept:\n  - automata: %s\n    msg: %s%s\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,strlen(pmensajeAut->recog)+1);            
         }
         else if(pmensajeAut->codterm == 1)
         {
-          printf("-msgtype: reject\n reject:\n  -automata: %s\n   msg: %s%s\n   pos: %d\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,(int)strlen(pmensajeAut->recog)+1);            
+          printf("- msgtype: reject\n  reject:\n  - automata: %s\n    msg: %s%s\n    pos: %d\n",ptuberia->nombreAut, pmensajeAut->recog,pmensajeAut->rest,(int)strlen(pmensajeAut->recog)+1);            
         }
         else if(pmensajeAut->codterm == 2)
         {
@@ -995,17 +995,17 @@ void imprimirInfoAutomatasTodos(GSList* automatas, char* msg)
   GSList *cosa,*automata,*estadito;
   if(strcmp(msg,"")==0)
   {
-    printf("-msgtype: info\n info:\n");
+    printf("- msgtype: info\n  info:\n");
     for(automata = automatas; automata; automata = automata->next)
     {
       //cada automata
       Pautomata_t pautomata= (Pautomata_t)automata->data;
 
-      printf("  -automata %s\n   ppid: %d\n", pautomata->nombre,getpid());
+      printf("  - automata %s\n    ppid: %d\n    nodes:\n", pautomata->nombre,getpid());
       for(estadito = pautomata->estados;estadito;estadito = estadito->next)
       {
         Pestado_t pestadito = (Pestado_t) estadito->data;
-        printf("   -nodo: %s\n    pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
+        printf("    - nodo: %s\n      pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
 
       }
     }
@@ -1022,11 +1022,11 @@ void imprimirInfoAutomataEspecifico(GSList* automatas, char* msg)
     //cada automata
     if(strcmp(msg,pautomata->nombre)==0)
     {
-      printf("-msgtype: info\n info:\n  -automata %s\n   ppid: %d\n", pautomata->nombre,getpid());
+      printf("- msgtype: info\n  info:\n  - automata %s\n    ppid: %d\n    nodes:\n", pautomata->nombre,getpid());
       for(estadito = pautomata->estados;estadito;estadito = estadito->next)
       {
         Pestado_t pestadito = (Pestado_t) estadito->data;
-        printf("   -nodo: %s\n    pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
+        printf("    - nodo: %s\n      pid: %d\n", pestadito->nomNodo,pestadito->PidProceso);
 
       }
     }

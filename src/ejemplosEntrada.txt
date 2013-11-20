@@ -12,9 +12,13 @@ Got scalar (value cualquier mensaje)
 STREAM END
 
 
+{ cmd: info, msg: "One" }
+{ cmd: info, msg: "Two" }
+{ cmd: info, msg: "Three" }
+{ cmd: info, msg: "" }
+{ cmd: stop, msg: "" }
 
-
-{ cmd: send, msg: "aaaaaaa{" }
+{ cmd: send, msg: "bbbbbb" }
 
 para aut4
 { cmd: send, msg: "aaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababaaaaaaaaaaabcaaaaaaaaaabcbcbababbbbbbbbbbbbbbbbbbbdddddddddaaaaawccttyyjahbdvjasbfvjladfvbbbbbbbbbbbbbbbbbbdddddddddaaaaaw" }
@@ -40,11 +44,7 @@ pal 5
 { recog: , rest: abababababababababababababababababababababababababababababababababababababababababababababababababababababababc }
 
 { recog: , rest: "aaaabb" }
-{ cmd: info, msg: "One" }
-{ cmd: info, msg: "Two" }
-{ cmd: info, msg: "Three" }
-{ cmd: info, msg: "" }
-{ cmd: stop, msg: "" }
+
 asfasgggggggggggggggasingfafgadfg
 adfgadfjgnadkfjgsjngbsfgndfhn}
 

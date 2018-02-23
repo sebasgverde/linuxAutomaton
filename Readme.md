@@ -7,17 +7,17 @@ The programm was tested in two distributions:
 
 ### fedora 16:
 
-- - GCC >= 4.7.2.
-- - YAML >=  0.2
-- - Glib >= 2.0
-- - make >= 3.82
+- GCC >= 4.7.2.
+- YAML >=  0.2
+- Glib >= 2.0
+- make >= 3.82
 
 ### ubuntu 13.04:
 
-- - GCC >= 4.7.3.
-- - YAML >=  0.2
-- - Glib >= 2.0
-- - make >= 3.81
+- GCC >= 4.7.3.
+- YAML >=  0.2
+- Glib >= 2.0
+- make >= 3.81
 
 
 ### Libraries:
@@ -120,7 +120,7 @@ https://developer.gnome.org/gtk-tutorial/2.22/x2055.html
 
 pipes
 - http://systemadmin.es/2010/05/como-funcionan-las-llamadas-al-sistema-dup-open-close
-- http://www.tldp.org/LDP/lpg/node11.html
+http://www.tldp.org/LDP/lpg/node11.html
 
 Proccess
 http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/create.html
@@ -139,4 +139,3 @@ http://stackoverflow.com/questions/16870485/how-can-i-read-a-an-input-string-of-
 
 Threads
 http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html
-- - 

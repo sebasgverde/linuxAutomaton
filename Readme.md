@@ -7,17 +7,17 @@ The programm was tested in two distributions:
 
 ### fedora 16:
 
-GCC >= 4.7.2.
-YAML >=  0.2
-Glib >= 2.0
-make >= 3.82
+- - GCC >= 4.7.2.
+- - YAML >=  0.2
+- - Glib >= 2.0
+- - make >= 3.82
 
 ### ubuntu 13.04:
 
-GCC >= 4.7.3.
-YAML >=  0.2
-Glib >= 2.0
-make >= 3.81
+- - GCC >= 4.7.3.
+- - YAML >=  0.2
+- - Glib >= 2.0
+- - make >= 3.81
 
 
 ### Libraries:
@@ -98,9 +98,9 @@ send the string:
 
 ## Useful Sources
 
-http://www.csc.villanova.edu/~mdamian/threads/posixsem.html
-http://www.chuidiang.com/clinux/herramientas/makefile.php
-http://rpmfind.net/linux/RPM/fedora/19/x86_64/y/yaml-cpp-devel-0.3.0-3.fc19.x86_64.html
+- http://www.csc.villanova.edu/~mdamian/threads/posixsem.html
+- http://www.chuidiang.com/clinux/herramientas/makefile.php
+- http://rpmfind.net/linux/RPM/fedora/19/x86_64/y/yaml-cpp-devel-0.3.0-3.fc19.x86_64.html
 
 YAML and its parser
 http://wpsoftware.net/andrew/pages/libyaml.html
@@ -109,8 +109,8 @@ Compilation of glib
 https://developer.gnome.org/glib/2.30/glib-compiling.html
 
 Files management with stdio
-http://icecube.wisc.edu/~dglo/c_class/stdio.html
-http://www.cplusplus.com/reference/cstdio/fscanf/
+- http://icecube.wisc.edu/~dglo/c_class/stdio.html
+- http://www.cplusplus.com/reference/cstdio/fscanf/
 
 Headers management
 http://stackoverflow.com/questions/7109964/creating-your-own-header-file-in-c
@@ -119,8 +119,8 @@ gslists
 https://developer.gnome.org/gtk-tutorial/2.22/x2055.html
 
 pipes
-http://systemadmin.es/2010/05/como-funcionan-las-llamadas-al-sistema-dup-open-close
-http://www.tldp.org/LDP/lpg/node11.html
+- http://systemadmin.es/2010/05/como-funcionan-las-llamadas-al-sistema-dup-open-close
+- http://www.tldp.org/LDP/lpg/node11.html
 
 Proccess
 http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/create.html
@@ -139,3 +139,4 @@ http://stackoverflow.com/questions/16870485/how-can-i-read-a-an-input-string-of-
 
 Threads
 http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html
+- - 
